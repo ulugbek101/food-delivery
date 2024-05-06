@@ -66,7 +66,8 @@ class Database:
                 telegram_id VARCHAR(200) NOT NULL UNIQUE,
                 language_code VARCHAR(2) NOT NULL DEFAULT 'uz',
                 status VARCHAR(200) NOT NULL DEFAULT 'bronze',
-                order_count INT DEFAULT 0    
+                order_count INT DEFAULT 0,
+                last_visited_place VARCHAR(20)    
             )
         """
         self.execute(sql, commit=True)
@@ -121,3 +122,15 @@ class Database:
             UPDATE users SET language_code = %s WHERE telegram_id = %s
         """
         self.execute(sql, (lang, telegram_id), commit=True)
+
+    def update_last_step(self, telegram_id: int, place: str) -> None:
+        """
+        Updates last visited path/place of a user so that on Back button click user can return to previous menu
+        :param telegram_id: user's telegram id
+        :param place: Last visited place identifier
+        :return: None
+        """
+        sql = """
+            UPDATE users SET last_visited_place = %s WHERE telegram_id = %s
+        """
+        self.execute(sql, (place, telegram_id), commit=True)

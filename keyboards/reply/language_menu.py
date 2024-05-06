@@ -13,7 +13,7 @@ def generate_language_menu() -> ReplyKeyboardMarkup:
     languages_list = [
         "🇺🇿 O'zbek",
         "🇷🇺 Русский",
-        "🇺🇸 English",
+        "🇬🇧 English",
     ]
 
     for language in languages_list:
