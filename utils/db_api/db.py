@@ -26,7 +26,7 @@ class Database:
                 commit: bool = False,
                 fetchall: bool = False,
                 fetchone: bool = False
-                ):
+                ) -> list | dict | None:
         if not params:
             params = ()
 
@@ -74,38 +74,50 @@ class Database:
     def get_user_language(self, telegram_id: int) -> str:
         """
         Gets user's language code by telegram_id from users table
-        :param telegram_id:
+        :param telegram_id: user's telegram id
         :return: str
         """
 
         sql = """
             SELECT language_code FROM users WHERE telegram_id = %s
         """
-        return self.execute(sql, (telegram_id,), fetchone=True).language_code
+        return self.execute(sql, (str(telegram_id),), fetchone=True)['language_code']
 
     def get_user(self, telegram_id: int) -> dict | None:
         """
         Returns user data from users table by telegram_id
         or None if user is not presented
-        :param telegram_id:
-        :return: dict | None
+        :param telegram_id: user's telegram id
+        :return: user: dict[str: any] or None
         """
 
         sql = """
             SELECT * FROM users WHERE telegram_id = %s
         """
-        return self.execute(sql, (telegram_id,), fetchone=True) or None
+        return self.execute(sql, (str(telegram_id),), fetchone=True) or None
 
-    def register_user(self, telegram_id: int, fullname: str, language_code):
+    def register_user(self, telegram_id: int, fullname: str, language_code: str) -> None:
         """
         Registers user in a system
-        :param telegram_id: int
-        :param fullname: str
-        :param language_code: str
-        :return:
+        :param telegram_id: user's telegram id
+        :param fullname: user's fullname
+        :param language_code: user's language code
+        :return: None
         """
 
         sql = """
             INSERT INTO users (telegram_id, fullname, language_code) VALUES (%s, %s, %s)
         """
-        self.execute(sql, (telegram_id, fullname, language_code), commit=True)
+        self.execute(sql, (str(telegram_id), fullname, language_code), commit=True)
+
+    def update_language_code(self, telegram_id: int, lang: str) -> None:
+        """
+        Updates user's language code by telegram_id in users table
+        :param telegram_id: user's telegram id
+        :param lang: new language
+        :return: None
+        """
+        sql = """
+            UPDATE users SET language_code = %s WHERE telegram_id = %s
+        """
+        self.execute(sql, (str(telegram_id), lang), commit=True)

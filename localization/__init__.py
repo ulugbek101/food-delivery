@@ -1,1 +1,1 @@
-from . import greeting
+from . import i18n
