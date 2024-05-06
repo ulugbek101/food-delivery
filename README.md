@@ -1,7 +1,5 @@
 # Food Delivery Bot
 
----
-
 ## Create virtual environment
 
 ```
