@@ -31,8 +31,10 @@ async def start(message: types.Message, state: FSMContext):
 
 @router.message(SetLanguageState.lang)
 async def set_language(message: types.Message, state: FSMContext):
+    lang = db.get_user_language(message.from_user.id)
+
     if message.text not in ["🇺🇿 O'zbek", "🇷🇺 Русский", "🇺🇸 English"]:
-        await message.answer(f"{request_language.get(message.from_user.language_code)}")
+        await message.answer(f"<b>{request_language.get(lang)}</b>")
     else:
         lang = message.from_user.language_code
         if message.text == "🇺🇿 O'zbek":
@@ -44,5 +46,5 @@ async def set_language(message: types.Message, state: FSMContext):
 
         await state.update_data(lang=lang)
         await state.clear()
-        db.update_language_code(message.from_user.id, lang)
         await message.answer(f"<b>{languages_menu.get(lang)}</b>", reply_markup=generate_main_menu(lang))
+        db.update_language_code(message.from_user.id, lang)
