@@ -9,4 +9,5 @@ def generate_back_button(lang: str) -> KeyboardButton:
     :param lang:
     :return: KeyboardButton
     """
-    return KeyboardButton(text=f"👈 {back_button_text[lang]}")
+
+    return KeyboardButton(text=f"{back_button_text[lang]}")

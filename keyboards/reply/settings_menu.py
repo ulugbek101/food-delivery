@@ -15,4 +15,4 @@ def generate_settings_menu(lang: str) -> ReplyKeyboardMarkup:
 
     markup.adjust(2)
     markup.row(generate_back_button(lang))
-    return markup.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return markup.as_markup(resize_keyboard=True)

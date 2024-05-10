@@ -4,7 +4,7 @@ from aiogram.utils.keyboard import ReplyKeyboardBuilder
 
 def generate_language_menu() -> ReplyKeyboardMarkup:
     """
-    Generates returns languages menu as a reply keyboard to set language
+    Generates and returns languages menu as a reply keyboard to set language
     :return: ReplyKeyboardMarkup
     """
 
@@ -20,4 +20,4 @@ def generate_language_menu() -> ReplyKeyboardMarkup:
         markup.button(text=language)
 
     markup.adjust(3)
-    return markup.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return markup.as_markup(resize_keyboard=True)

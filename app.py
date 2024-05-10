@@ -7,6 +7,7 @@ from utils.set_bot_commands import set_bot_commands
 
 
 async def main():
+    logging.basicConfig(level=logging.INFO)
     await bot.delete_webhook(drop_pending_updates=True)
     await set_bot_commands(bot)
     await dp.start_polling(bot)

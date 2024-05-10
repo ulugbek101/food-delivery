@@ -11,3 +11,6 @@ dp = Dispatcher(storage=storage)
 db = Database(db_name=DB_NAME, db_user=DB_USER, db_password=DB_PASSWORD, db_host=DB_HOST, db_port=DB_PORT)
 
 db.create_users_table()
+db.create_categories_table()
+db.create_subcategories_table()
+db.create_products_table()

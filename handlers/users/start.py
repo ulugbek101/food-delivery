@@ -7,7 +7,7 @@ from loader import db
 from localization.i18n import greeting, languages_menu, main_menu_title
 from keyboards.reply.language_menu import generate_language_menu
 from keyboards.reply.main_menu import generate_main_menu
-from states.select_language import SetLanguageState
+from states.set_language import LanguageState
 
 
 @router.message(CommandStart())
@@ -27,11 +27,11 @@ async def start(message: types.Message, state: FSMContext):
 
     await message.answer(f"<b>{greet_message}, {fullname} 👋</b>",
                          reply_markup=generate_language_menu())
-    await state.set_state(SetLanguageState.lang)
+    await state.set_state(LanguageState.lang)
     await message.answer(f"<b>{request_language_message}</b>")
 
 
-@router.message(SetLanguageState.lang)
+@router.message(LanguageState.lang)
 async def set_language(message: types.Message, state: FSMContext):
     lang = db.get_user_language(message.from_user.id)
 

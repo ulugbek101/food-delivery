@@ -1,6 +1,4 @@
-from aiogram import F
 from aiogram import types
-from aiogram.fsm.context import FSMContext
 
 from router import router
 from loader import db

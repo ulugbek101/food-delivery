@@ -70,7 +70,65 @@ class Database:
                 last_visited_place VARCHAR(20)    
             )
         """
-        self.execute(sql, commit=True)
+        self.execute(sql)
+
+    def create_categories_table(self) -> None:
+        """
+        Creates categories table if not exists
+        :return: None
+        """
+        sql = """
+            CREATE TABLE IF NOT EXISTS categories(
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                name_uz VARCHAR(200) NOT NULL UNIQUE,
+                name_ru VARCHAR(200) NOT NULL UNIQUE,
+                name_en VARCHAR(200) NOT NULL UNIQUE,
+                photo VARCHAR(200) NOT NULL,
+                has_subcategory INT NOT NULL DEFAULT 0
+            )
+        """
+        self.execute(sql)
+
+    def create_subcategories_table(self) -> None:
+        """
+        Creates subcategories table if not exists
+        :return: None
+        """
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS subcategories(
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                category_id INT NOT NULL,
+                name_uz VARCHAR(200) NOT NULL UNIQUE,
+                name_ru VARCHAR(200) NOT NULL UNIQUE,
+                name_en VARCHAR(200) NOT NULL UNIQUE,
+                photo VARCHAR(200) NOT NULL
+            )
+        """
+        self.execute(sql)
+
+    def create_products_table(self) -> None:
+        """
+        Creates products table if not exists
+        :return: None
+        """
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS products(
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                category_id INT NOT NULL,
+                subcategory_id INT DEFAULT NULL,
+                name_uz VARCHAR(200) NOT NULL UNIQUE,
+                name_ru VARCHAR(200) NOT NULL UNIQUE,
+                name_en VARCHAR(200) NOT NULL UNIQUE,
+                desc_uz VARCHAR(200),
+                desc_ru VARCHAR(200),
+                desc_en VARCHAR(200),
+                price DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
+                photo VARCHAR(200)
+            )
+        """
+        self.execute(sql)
 
     def get_user_language(self, telegram_id: int) -> str:
         """
@@ -97,6 +155,17 @@ class Database:
         """
         return self.execute(sql, (telegram_id,), fetchone=True) or None
 
+    def get_categories(self):
+        """
+        Gets all categories from categories table
+        :return:
+        """
+
+        sql = """
+            SELECT * FROM categories
+        """
+        return self.execute(sql, fetchall=True)
+
     def register_user(self, telegram_id: int, fullname: str, language_code: str) -> None:
         """
         Registers user in a system
@@ -118,6 +187,7 @@ class Database:
         :param lang: new language
         :return: None
         """
+
         sql = f"""
             UPDATE users SET language_code = %s WHERE telegram_id = %s
         """
@@ -130,7 +200,34 @@ class Database:
         :param place: Last visited place identifier
         :return: None
         """
+
         sql = """
             UPDATE users SET last_visited_place = %s WHERE telegram_id = %s
         """
         self.execute(sql, (place, telegram_id), commit=True)
+
+    def update_phone_number(self, telegram_id: int, phone_number: str) -> None:
+        """
+        Updates user's phone number
+        :param telegram_id: user's telegram id
+        :param phone_number: user's phone number
+        :return: None
+        """
+
+        sql = """
+            UPDATE users SET phone_number = %s WHERE telegram_id = %s
+        """
+        self.execute(sql, (phone_number, telegram_id), commit=True)
+
+    def update_fullname(self, telegram_id: int, fullname: str) -> None:
+        """
+        Updates user's fullname in users table
+        :param telegram_id: user's telegram id
+        :param fullname: user's fullname
+        :return: None
+        """
+
+        sql = """
+            UPDATE users SET fullname = %s WHERE telegram_id = %s
+        """
+        self.execute(sql, (fullname, telegram_id), commit=True)
