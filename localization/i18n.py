@@ -97,3 +97,9 @@ categories = {
     "ru": "📋 Наше меню",
     "en": "📋 Our menu",
 }
+
+meals_not_found = {
+    "uz": "Bu kategoriya bo'yicha maxsulotlar topilmadi",
+    "ru": "Продукты по этой категории не найдены",
+    "en": "No meals found by this category",
+}

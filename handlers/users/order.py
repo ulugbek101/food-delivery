@@ -7,7 +7,7 @@ from keyboards.inline.categories_menu import generate_categories_menu
 
 
 @router.message(lambda message: message.text in ["🛍️ Buyurtma berish", "🛍 Заказать", "🛍️ Order"])
-async def categories_menu(message: types.Message):
+async def order_menu(message: types.Message):
     lang = db.get_user_language(message.from_user.id)
     categories_list = db.get_categories()
     await message.answer_photo(

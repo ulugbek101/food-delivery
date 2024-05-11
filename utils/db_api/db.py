@@ -155,7 +155,7 @@ class Database:
         """
         return self.execute(sql, (telegram_id,), fetchone=True) or None
 
-    def get_categories(self):
+    def get_categories(self) -> list:
         """
         Gets all categories from categories table
         :return:
@@ -165,6 +165,30 @@ class Database:
             SELECT * FROM categories
         """
         return self.execute(sql, fetchall=True)
+
+    def get_subcategories(self, category_id: int) -> list:
+        """
+        Returns subcategories list by category id
+        :param category_id:
+        :return: tuple
+        """
+
+        sql = """
+            SELECT * FROM subcategories WHERE category_id = %s
+        """
+        return self.execute(sql, (category_id,), fetchall=True)
+
+    def get_product(self, product_id: int) -> dict:
+        """
+        Returns product information by product id
+        :param product_id:
+        :return: dict
+        """
+
+        sql = """
+            SELECT * FROM products WHERE id = %s
+        """
+        return self.execute(sql, (product_id,), fetchone=True)
 
     def register_user(self, telegram_id: int, fullname: str, language_code: str) -> None:
         """
