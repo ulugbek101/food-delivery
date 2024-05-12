@@ -89,23 +89,23 @@ class Database:
         """
         self.execute(sql)
 
-    def create_subcategories_table(self) -> None:
-        """
-        Creates subcategories table if not exists
-        :return: None
-        """
-
-        sql = """
-            CREATE TABLE IF NOT EXISTS subcategories(
-                id INT PRIMARY KEY AUTO_INCREMENT,
-                category_id INT NOT NULL,
-                name_uz VARCHAR(200) NOT NULL UNIQUE,
-                name_ru VARCHAR(200) NOT NULL UNIQUE,
-                name_en VARCHAR(200) NOT NULL UNIQUE,
-                photo VARCHAR(200) NOT NULL
-            )
-        """
-        self.execute(sql)
+    # def create_subcategories_table(self) -> None:
+    #     """
+    #     Creates subcategories table if not exists
+    #     :return: None
+    #     """
+    #
+    #     sql = """
+    #         CREATE TABLE IF NOT EXISTS subcategories(
+    #             id INT PRIMARY KEY AUTO_INCREMENT,
+    #             category_id INT NOT NULL,
+    #             name_uz VARCHAR(200) NOT NULL UNIQUE,
+    #             name_ru VARCHAR(200) NOT NULL UNIQUE,
+    #             name_en VARCHAR(200) NOT NULL UNIQUE,
+    #             photo VARCHAR(200) NOT NULL
+    #         )
+    #     """
+    #     self.execute(sql)
 
     def create_products_table(self) -> None:
         """
@@ -162,7 +162,7 @@ class Database:
         """
 
         sql = """
-            SELECT * FROM categories
+            SELECT * FROM categories WHERE category_id IS NULL
         """
         return self.execute(sql, fetchall=True)
 
@@ -174,9 +174,33 @@ class Database:
         """
 
         sql = """
-            SELECT * FROM subcategories WHERE category_id = %s
+            SELECT * FROM categories WHERE category_id = %s
         """
         return self.execute(sql, (category_id,), fetchall=True)
+
+    def get_products(self, category_id: int) -> list:
+        """
+        Returns products list from products table
+        :param category_id:
+        :return: products list
+        """
+
+        sql = """
+            SELECT * FROM products WHERE category_id = %s
+        """
+        return self.execute(sql, (category_id,), fetchall=True)
+
+    def get_category(self, category_id: int) -> dict:
+        """
+        Returns category object by category object
+        :param category_id:
+        :return: dict
+        """
+
+        sql = """
+            SELECT * FROM categories WHERE id = %s
+        """
+        return self.execute(sql, (category_id,), fetchone=True)
 
     def get_product(self, product_id: int) -> dict:
         """

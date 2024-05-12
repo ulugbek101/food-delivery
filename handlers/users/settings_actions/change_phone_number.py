@@ -24,7 +24,6 @@ async def change_phone_number(message: types.Message, state: FSMContext):
 @router.message(PhoneNumberState.phone_number)
 async def update_phone_number(message: types.Message, state: FSMContext):
     if message.text and message.text.strip() in back_button_text.values():
-        await state.clear()
         await back()
 
     lang = db.get_user_language(message.from_user.id)

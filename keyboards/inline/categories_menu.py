@@ -18,14 +18,7 @@ def generate_categories_menu(lang: str, categories_list: tuple | list) -> Inline
     }
 
     for category in categories_list:
-        has_subcategory = category['has_subcategory'] == 1
-
-        if has_subcategory:
-            prefix = f"scategory:{category['id']}"
-        else:
-            prefix = f"category:{category['id']}"
-
-        markup.button(text=category[language.get(lang)], callback_data=prefix)
-
+        markup.button(text=category[language.get(lang)], callback_data=f"category:{category['id']}")
     markup.adjust(2)
+
     return markup.as_markup()

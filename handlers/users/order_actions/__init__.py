@@ -1,1 +1,1 @@
-from . import subcategories
+from . import categories

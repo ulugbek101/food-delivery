@@ -1,14 +1,14 @@
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.utils.keyboard import InlineKeyboardBuilder
+from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 
 from localization.i18n import back_button_text
 
 
-def generate_subcategories_menu(lang: str, subcategories: list, category_id: str) -> InlineKeyboardMarkup:
+def generate_products_menu(lang: str, products: list, category_id: str) -> InlineKeyboardMarkup:
     """
-    Generates and returns subcategories menu as an InlineKeyboardMarkup
+    Generates and returns products menu
+    :param products: products list
     :param lang: user's language
-    :param subcategories: subcategories list
     :param category_id: category id
     :return: InlineKeyboardMarkup
     """
@@ -20,10 +20,8 @@ def generate_subcategories_menu(lang: str, subcategories: list, category_id: str
         "en": "name_en",
     }
 
-    for subcategory in subcategories:
-        markup.row(
-            InlineKeyboardButton(text=subcategory[languages.get(lang)], callback_data=f"category:{subcategory['id']}")
-        )
+    for product in products:
+        markup.button(text=product[languages.get(lang)], callback_data=f"product:{product['id']}")
     markup.adjust(2)
     markup.row(InlineKeyboardButton(text=f"{back_button_text.get(lang)}", callback_data=f"back:to-cat:{category_id}"))
 

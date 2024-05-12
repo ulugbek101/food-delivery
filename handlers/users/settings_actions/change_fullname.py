@@ -37,7 +37,6 @@ async def change_fullname(message: types.Message, state: FSMContext):
 @router.message(FullnameState.fullname)
 async def update_fullname(message: types.Message, state: FSMContext):
     if message.text.strip() in back_button_text.values():
-        await state.clear()
         await back()
 
     else:
