@@ -5,7 +5,7 @@ from router import router
 from loader import db
 from localization.i18n import phone_number_invalid, phone_number_valid, back_button_text, request_phone_number
 from keyboards.reply.settings_menu import generate_settings_menu
-from keyboards.reply.contact import generate_request_contact_menu
+from keyboards.reply.contacts import generate_request_contact_menu
 from states.set_phone_number import PhoneNumberState
 from validations.phone_number import validate_phone_number
 from handlers.users.back import back

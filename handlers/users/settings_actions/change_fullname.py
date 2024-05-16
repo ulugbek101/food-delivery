@@ -6,7 +6,7 @@ from loader import db
 from localization.i18n import (request_authorization, request_phone_number, request_fullname, back_button_text,
                                fullname_successfull_update)
 from keyboards.reply.settings_menu import generate_settings_menu
-from keyboards.reply.contact import generate_request_contact_menu
+from keyboards.reply.contacts import generate_request_contact_menu
 from keyboards.reply.back_button import generate_back_button
 from states.set_phone_number import PhoneNumberState
 from states.set_fullname import FullnameState

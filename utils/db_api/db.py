@@ -155,16 +155,17 @@ class Database:
         """
         return self.execute(sql, (telegram_id,), fetchone=True) or None
 
-    def get_categories(self) -> list:
+    def get_categories(self, target: str) -> list:
         """
         Gets all categories from categories table
-        :return:
+        :param: target, whether you want foods or other categories
+        :return: list of categories
         """
 
         sql = """
-            SELECT * FROM categories WHERE category_id IS NULL
+            SELECT * FROM categories WHERE category_id IS NULL AND belongs_to = %s
         """
-        return self.execute(sql, fetchall=True)
+        return self.execute(sql, (target,), fetchall=True)
 
     def get_subcategories(self, category_id: int) -> list:
         """

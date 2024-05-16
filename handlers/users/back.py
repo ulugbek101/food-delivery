@@ -40,15 +40,15 @@ async def inline_back(call: types.CallbackQuery):
         category_id = action[-1]
         category = db.get_category(category_id)
 
-        if category['category_id']:
+        if category.get('category_id'):
             subcategories = db.get_subcategories(category['category_id'])
-
             await call.message.answer_photo(photo=f"{subcategories[0]['photo']}",
                                             reply_markup=generate_subcategories_menu(lang=lang,
-                                                                                    subcategories=subcategories,
-                                                                                     category_id=category['category_id']))
+                                                                                     subcategories=subcategories,
+                                                                                     category_id=category[
+                                                                                         'category_id']))
         else:
-            categories = db.get_categories()
+            categories = db.get_categories(target=category.get("belongs_to"))
             await call.message.answer_photo(
                 photo="https://static.vecteezy.com/system/resources/previews/017/722/096/non_2x/cooking-cuisine-cookery-logo-restaurant-menu-cafe-diner-label-logo-design-illustration-free-vector.jpg",
                 reply_markup=generate_categories_menu(lang=lang, categories_list=categories))

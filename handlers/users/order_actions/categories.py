@@ -7,7 +7,7 @@ from keyboards.inline.products_menu import generate_products_menu
 
 
 @dp.callback_query(lambda call: "category" in call.data)
-async def show_subcategories(call: types.CallbackQuery):
+async def show_categories(call: types.CallbackQuery):
     category_id = call.data.split(":")[-1]
     category = db.get_category(category_id)
     lang = db.get_user_language(call.from_user.id)
@@ -16,7 +16,7 @@ async def show_subcategories(call: types.CallbackQuery):
         subcategories = db.get_subcategories(category_id)
 
         if len(subcategories) == 0:
-            await call.answer(text=f"{meals_not_found.get(lang)}")
+            await call.answer(text=f"{meals_not_found.get(lang)}", show_alert=True)
 
         else:
             await call.message.answer_photo(photo=f"{subcategories[0]['photo']}",
