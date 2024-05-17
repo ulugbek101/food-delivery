@@ -13,3 +13,4 @@ db = Database(db_name=DB_NAME, db_user=DB_USER, db_password=DB_PASSWORD, db_host
 # db.create_users_table()
 # db.create_categories_table()
 # db.create_products_table()
+# db.create_cart_table()

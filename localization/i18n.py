@@ -109,3 +109,15 @@ root_menu = {
     "ru": ["🍛🧆🫓 Еда", "🍹🍿🍰 Другое..."],
     "en": ["🍛🧆🫓 Foods", "🍹🍿🍰 Others..."],
 }
+
+add_to_cart = {
+    "uz": "🛒 Savatchaga qo'shish",
+    "ru": "🛒 Добавить в корзину",
+    "en": "🛒 Add to cart",
+}
+
+added_to_cart_text = {
+    "uz": "✅ Maxsulot savatchaga qo'shildi",
+    "ru": "✅ Продукт добавлен в корзину",
+    "en": "✅ Product has been added to card",
+}

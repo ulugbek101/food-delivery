@@ -130,6 +130,39 @@ class Database:
         """
         self.execute(sql)
 
+    def create_cart_table(self) -> None:
+        """
+        Creates cart table if not exists
+        :return: None
+        """
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS cart(
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                user_id INT NOT NULL,
+                product_id INT NOT NULL,
+                quantity INT NOT NULL,
+                
+                CONSTRAINT unique_product_for_user UNIQUE(user_id, product_id)
+            )
+        """
+        self.execute(sql)
+
+    def add_to_cart(self, user_id: int, product_id: int, quantity: int) -> None:
+        """
+        Adds product to user's cart
+        :param user_id: user's id
+        :param product_id: product's id
+        :param quantity: product's quantity
+        :return: None
+        """
+
+        sql = """
+            INSERT INTO cart (user_id, product_id, quantity) 
+            VALUES (%s, %s, %s)
+        """
+        self.execute(sql, (user_id, product_id, quantity), commit=True)
+
     def get_user_language(self, telegram_id: int) -> str:
         """
         Gets user's language code by telegram_id from users table
