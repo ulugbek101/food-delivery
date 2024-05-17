@@ -163,6 +163,20 @@ class Database:
         """
         self.execute(sql, (user_id, product_id, quantity), commit=True)
 
+    def update_cart_product_quantity(self, user_id: int, product_id: int, new_quantity: int) -> None:
+        """
+        Updates product's quantity in user's cart
+        :param user_id: user's id
+        :param product_id: product id
+        :param new_quantity: product's new quantity
+        :return: None
+        """
+
+        sql = """
+            UPDATE cart SET quantity = %s WHERE user_id = %s AND product_id = %s
+        """
+        self.execute(sql, (new_quantity, user_id, product_id), commit=True)
+
     def get_user_language(self, telegram_id: int) -> str:
         """
         Gets user's language code by telegram_id from users table

@@ -116,8 +116,14 @@ add_to_cart = {
     "en": "🛒 Add to cart",
 }
 
-added_to_cart_text = {
+cart_product_added_cart_text = {
     "uz": "✅ Maxsulot savatchaga qo'shildi",
     "ru": "✅ Продукт добавлен в корзину",
     "en": "✅ Product has been added to card",
+}
+
+cart_product_updated_text = {
+    "uz": "➕✅ Maxsulot soni o'zgartirildi",
+    "ru": "➕✅ Количество успешно изменено",
+    "en": "➕✅ Quantity has successfully changed",
 }
