@@ -23,14 +23,15 @@ async def cart_actions(call: types.CallbackQuery):
         user_id = db.get_user(call.from_user.id).get('id')
         category = db.get_category(category_id)
         categories = db.get_categories(category["belongs_to"])
+
         try:
             await call.answer(f"{cart_product_added_cart_text.get(lang)}", show_alert=True)
             db.add_to_cart(user_id=user_id, product_id=product_id, quantity=quantity)
-
         except:
+            product_quantity = db.get_product_quantity(product_id, user_id)
+            new_quantity = product_quantity + int(quantity)
             await call.answer(f"{cart_product_updated_text.get(lang)}", show_alert=True)
-            db.update_cart_product_quantity(user_id=user_id, product_id=product_id, quantity=quantity)
-
+            db.update_cart_product_quantity(user_id=user_id, product_id=product_id, new_quantity=new_quantity)
         finally:
             await call.message.delete()
             await call.message.answer_photo(

@@ -177,6 +177,20 @@ class Database:
         """
         self.execute(sql, (new_quantity, user_id, product_id), commit=True)
 
+    def get_product_quantity(self, product_id: int, user_id: int) -> int:
+        """
+        Returns product's quantity
+        :param product_id: product's id
+        :param user_id: user's id
+        :return: int
+        """
+
+        sql = """
+            SELECT quantity FROM cart WHERE user_id = %s AND product_id = %s
+        """
+        quantity = self.execute(sql, (user_id, product_id), fetchone=True)
+        return quantity.get('quantity')
+
     def get_user_language(self, telegram_id: int) -> str:
         """
         Gets user's language code by telegram_id from users table
