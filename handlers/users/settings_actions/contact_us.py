@@ -7,6 +7,7 @@ from loader import db
 from localization.i18n import contact_information
 
 
+@router.message(lambda message: message.text == "/contacts")
 @router.message(lambda message: message.text in ["☎️ Biz bilan bog'laning", "☎️ Свяжитесь с нами", "☎️ Contact us"])
 async def contact_us(message: types.Message):
     lang = db.get_user_language(message.from_user.id)
