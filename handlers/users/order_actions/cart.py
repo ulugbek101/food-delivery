@@ -23,21 +23,22 @@ async def cart_actions(call: types.CallbackQuery):
         user_id = db.get_user(call.from_user.id).get('id')
         category = db.get_category(category_id)
         categories = db.get_categories(category["belongs_to"])
+        product = db.get_cart_product(user_id, product_id)
 
-        try:
-            await call.answer(f"{cart_product_added_cart_text.get(lang)}", show_alert=True)
+        if not product:
             db.add_to_cart(user_id=user_id, product_id=product_id, quantity=quantity)
-        except:
-            product_quantity = db.get_product_quantity(product_id, user_id)
+            await call.answer(f"{cart_product_added_cart_text.get(lang)}", show_alert=True)
+        else:
+            product_quantity = product.get('quantity')
             new_quantity = product_quantity + int(quantity)
-            await call.answer(f"{cart_product_updated_text.get(lang)}", show_alert=True)
             db.update_cart_product_quantity(user_id=user_id, product_id=product_id, new_quantity=new_quantity)
-        finally:
-            await call.message.delete()
-            await call.message.answer_photo(
-                photo="https://static.vecteezy.com/system/resources/previews/017/722/096/non_2x/cooking-cuisine-cookery-logo-restaurant-menu-cafe-diner-label-logo-design-illustration-free-vector.jpg",
-                reply_markup=generate_categories_menu(lang, categories)
-            )
+            await call.answer(f"{cart_product_updated_text.get(lang)}", show_alert=True)
+
+        await call.message.delete()
+        await call.message.answer_photo(
+            photo="https://static.vecteezy.com/system/resources/previews/017/722/096/non_2x/cooking-cuisine-cookery-logo-restaurant-menu-cafe-diner-label-logo-design-illustration-free-vector.jpg",
+            reply_markup=generate_categories_menu(lang, categories)
+        )
 
     elif action == "increment":
         quantity = int(quantity) + 1

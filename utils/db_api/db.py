@@ -191,6 +191,20 @@ class Database:
         quantity = self.execute(sql, (user_id, product_id), fetchone=True)
         return quantity.get('quantity')
 
+    def get_cart_product(self, user_id: int, product_id: int) -> dict | None:
+        """
+        Returns cart product from user's cart or None empty set instead if product is not presented in user's cart
+        :param user_id:
+        :param product_id:
+        :return: dict | None
+        """
+
+        sql = """
+            SELECT * FROM cart WHERE user_id = %s AND product_id = %s
+        """
+        product = self.execute(sql, (user_id, product_id), fetchone=True)
+        return product if product else None
+
     def get_user_language(self, telegram_id: int) -> str:
         """
         Gets user's language code by telegram_id from users table

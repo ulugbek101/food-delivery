@@ -33,7 +33,6 @@ async def inline_back(call: types.CallbackQuery):
     lang = db.get_user_language(call.from_user.id)
     action = call.data.split(":")
     destination = action[1]
-    print(call.data)
 
     await call.message.delete()
 
