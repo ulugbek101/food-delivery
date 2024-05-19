@@ -19,7 +19,7 @@ async def show_categories(call: types.CallbackQuery):
             await call.answer(text=f"{meals_not_found.get(lang)}", show_alert=True)
 
         else:
-            await call.message.answer_photo(photo=f"{subcategories[0]['photo']}",
+            await call.message.answer_photo(photo=f"{category.get('photo')}",
                                             reply_markup=generate_subcategories_menu(lang=lang,
                                                                                      subcategories=subcategories,
                                                                                      category_id=category_id))
@@ -33,7 +33,7 @@ async def show_categories(call: types.CallbackQuery):
 
         else:
             await call.message.delete()
-            await call.message.answer_photo(photo=f"{products[0]['photo']}",
+            await call.message.answer_photo(photo=f"{category.get('photo')}",
                                             reply_markup=generate_products_menu(lang=lang,
                                                                                 products=products,
                                                                                 category_id=category_id))

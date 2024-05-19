@@ -41,8 +41,9 @@ async def inline_back(call: types.CallbackQuery):
         category = db.get_category(category_id)
 
         if category.get('category_id'):
-            subcategories = db.get_subcategories(category['category_id'])
-            await call.message.answer_photo(photo=f"{subcategories[0]['photo']}",
+            subcategories = db.get_subcategories(category.get('category_id'))
+            photo = db.get_category(category.get('category_id')).get('photo')
+            await call.message.answer_photo(photo=f"{photo}",
                                             reply_markup=generate_subcategories_menu(lang=lang,
                                                                                      subcategories=subcategories,
                                                                                      category_id=category[
