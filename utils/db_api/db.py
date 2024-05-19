@@ -89,24 +89,6 @@ class Database:
         """
         self.execute(sql)
 
-    # def create_subcategories_table(self) -> None:
-    #     """
-    #     Creates subcategories table if not exists
-    #     :return: None
-    #     """
-    #
-    #     sql = """
-    #         CREATE TABLE IF NOT EXISTS subcategories(
-    #             id INT PRIMARY KEY AUTO_INCREMENT,
-    #             category_id INT NOT NULL,
-    #             name_uz VARCHAR(200) NOT NULL UNIQUE,
-    #             name_ru VARCHAR(200) NOT NULL UNIQUE,
-    #             name_en VARCHAR(200) NOT NULL UNIQUE,
-    #             photo VARCHAR(200) NOT NULL
-    #         )
-    #     """
-    #     self.execute(sql)
-
     def create_products_table(self) -> None:
         """
         Creates products table if not exists
@@ -163,6 +145,23 @@ class Database:
         """
         self.execute(sql, (user_id, product_id, quantity), commit=True)
 
+    def update_cart_products_total_price(self, user_id: int, product_id: int, quantity: int) -> None:
+        """
+        Updates total price of user's cart for a specific product's row
+        :param user_id: user's id
+        :param product_id: product's id
+        :param quantity: product's quantity
+        :return: None
+        """
+
+        product_price = self.get_product(product_id).get('price')
+        total_price = product_price * quantity
+
+        sql = """
+            UPDATE cart SET total_price = %s WHERE user_id = %s AND product_id = %s    
+        """
+        self.execute(sql, (total_price, user_id, product_id), commit=True)
+
     def update_cart_product_quantity(self, user_id: int, product_id: int, new_quantity: int) -> None:
         """
         Updates product's quantity in user's cart
@@ -176,6 +175,7 @@ class Database:
             UPDATE cart SET quantity = %s WHERE user_id = %s AND product_id = %s
         """
         self.execute(sql, (new_quantity, user_id, product_id), commit=True)
+        self.update_cart_products_total_price(user_id, product_id, new_quantity)
 
     def get_product_quantity(self, product_id: int, user_id: int) -> int:
         """
