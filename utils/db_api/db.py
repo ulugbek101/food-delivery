@@ -84,7 +84,9 @@ class Database:
                 name_ru VARCHAR(200) NOT NULL UNIQUE,
                 name_en VARCHAR(200) NOT NULL UNIQUE,
                 photo VARCHAR(200) NOT NULL,
-                has_subcategory INT NOT NULL DEFAULT 0
+                has_subcategory INT NOT NULL DEFAULT 0,
+                category_id INT DEFAULT NULL,
+                belongs_to VARCHAR(200) NOT NULL
             )
         """
         self.execute(sql)
@@ -124,6 +126,7 @@ class Database:
                 user_id INT NOT NULL,
                 product_id INT NOT NULL,
                 quantity INT NOT NULL,
+                total_price DECIMAL(12, 2) DEFAULT 0.00,
                 
                 CONSTRAINT unique_product_for_user UNIQUE(user_id, product_id)
             )
