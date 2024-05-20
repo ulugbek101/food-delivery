@@ -31,6 +31,7 @@ async def back(message: types.Message, state: FSMContext):
     elif last_visited_place == "cart":
         message_id = message.message_id
         await bot.delete_message(chat_id=message.from_user.id, message_id=message_id - 1)
+        await bot.delete_message(chat_id=message.from_user.id, message_id=message_id - 2)
         await message.answer(text=f"<b>{main_menu_title.get(lang)}</b>", reply_markup=generate_main_menu(lang))
         await message.answer_photo(
             photo="https://static.vecteezy.com/system/resources/previews/017/722/096/non_2x/cooking-cuisine-cookery-logo-restaurant-menu-cafe-diner-label-logo-design-illustration-free-vector.jpg",
