@@ -17,10 +17,10 @@ languages_menu = {
 }
 
 main_menu = {
-    "uz": ["🛍️ Buyurtma berish", "📃 Buyurtmalar tarixi", "⚙️ Sozlamalar", "🔥 Maxsus takliflar",
+    "uz": ["🛍️ Buyurtma berish", "🛒 Korzinkam", "📃 Buyurtmalar tarixi", "⚙️ Sozlamalar", "🔥 Maxsus takliflar",
            "☎️ Biz bilan bog'laning"],
-    "ru": ["🛍 Заказать", "📃 История заказов", "⚙️ Настройки", "🔥 Акции", "☎️ Свяжитесь с нами"],
-    "en": ["🛍️ Order", "📃 Orders history", "⚙️ Settings", "🔥 Promotions", "☎️ Contact us"],
+    "ru": ["🛍 Заказать", "🛒 Моя корзина", "📃 История заказов", "⚙️ Настройки", "🔥 Акции", "☎️ Свяжитесь с нами"],
+    "en": ["🛍️ Order", "🛒 My cart", "📃 Orders history", "⚙️ Settings", "🔥 Promotions", "☎️ Contact us"],
 }
 
 main_menu_title = {
@@ -126,4 +126,22 @@ cart_product_updated_text = {
     "uz": "➕✅ Maxsulot soni o'zgartirildi",
     "ru": "➕✅ Количество успешно изменено",
     "en": "➕✅ Quantity has successfully changed",
+}
+
+cart = {
+    "uz": "🛒 Korzinakngiz",
+    "ru": "🛒 Ваша корзина",
+    "en": "🛒 Your cart",
+}
+
+total = {
+    "uz": "Umumiy",
+    "ru": "Итого",
+    "en": "Overall",
+}
+
+cart_overall_ready = {
+    "uz": "✅ Davom etish",
+    "ru": "✅ Продолжить",
+    "en": "✅ Continue",
 }

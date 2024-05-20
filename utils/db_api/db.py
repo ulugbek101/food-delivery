@@ -147,6 +147,7 @@ class Database:
             VALUES (%s, %s, %s)
         """
         self.execute(sql, (user_id, product_id, quantity), commit=True)
+        self.update_cart_products_total_price(user_id, product_id, quantity)
 
     def update_cart_products_total_price(self, user_id: int, product_id: int, quantity: int) -> None:
         """
@@ -158,7 +159,7 @@ class Database:
         """
 
         product_price = self.get_product(product_id).get('price')
-        total_price = product_price * quantity
+        total_price = int(product_price) * int(quantity)
 
         sql = """
             UPDATE cart SET total_price = %s WHERE user_id = %s AND product_id = %s    
@@ -207,6 +208,30 @@ class Database:
         """
         product = self.execute(sql, (user_id, product_id), fetchone=True)
         return product if product else None
+
+    def get_users_cart_products(self, user_id: int) -> list:
+        """
+        Returns user's cart products
+        :param user_id: user's id
+        :return: list
+        """
+
+        sql = """
+            SELECT * FROM cart WHERE user_id = %s
+        """
+        return self.execute(sql, (user_id,), fetchall=True)
+
+    def get_users_cart_total_price(self, user_id: int) -> float:
+        """
+        Returns user's cart's total price
+        :param user_id: user's id
+        :return: float
+        """
+
+        sql = """
+            SELECT SUM(total_price) as total_price FROM cart WHERE user_id = %s
+        """
+        return self.execute(sql, (user_id,), fetchone=True).get('total_price')
 
     def get_user_language(self, telegram_id: int) -> str:
         """

@@ -5,4 +5,4 @@ def format_price_digits(price: float) -> str:
     :return: float
     """
 
-    return f"{price:,.2f}".replace(',', ' ')
+    return f"{price:,}".replace(',', ' ').replace(".00", "")

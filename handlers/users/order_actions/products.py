@@ -25,11 +25,11 @@ async def show_product_details(call: types.CallbackQuery):
 
     description = f"{product[product_name.get(lang)]}\n\n"
     description += f"{product[product_desc.get(lang)]}\n\n"
-    description += f"{format_price_digits(product['price'])} uzs"
+    description += f"{format_price_digits(product.get('price'))} uzs"
 
     await call.message.delete()
     await call.message.answer_photo(
         photo=product['photo'],
         caption=f"<b>{description}</b>",
-        reply_markup=generate_product_menu(lang, product_id, product['category_id'])
+        reply_markup=generate_product_menu(lang, product_id, product.get('category_id'))
     )
