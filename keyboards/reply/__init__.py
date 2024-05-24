@@ -3,4 +3,7 @@ from . import language_menu
 from . import main_menu
 from . import settings_menu
 from . import contacts
+from . import locations
 from . import cart_overall_ready
+from . import select_deliver_type_menu
+from . import confirmation_menu

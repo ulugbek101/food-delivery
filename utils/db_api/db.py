@@ -114,6 +114,24 @@ class Database:
         """
         self.execute(sql)
 
+    def create_locations_table(self):
+        """
+        Create user saved locations
+        :return: None
+        """
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS locations(
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                user_id INT NOT NULL,
+                coordinates VARCHAR(200) NOT NULL,
+                full_address VARCHAR(100) NOT NULL,
+                
+                CONSTRAINT unique_full_address_for_user UNIQUE(user_id, full_address)
+            )
+        """
+        self.execute(sql)
+
     def create_cart_table(self) -> None:
         """
         Creates cart table if not exists
@@ -180,6 +198,31 @@ class Database:
         """
         self.execute(sql, (new_quantity, user_id, product_id), commit=True)
         self.update_cart_products_total_price(user_id, product_id, new_quantity)
+
+    def get_user_locations(self, user_id: int):
+        """
+        Returns user's saved locations list
+        :param user_id: user's id
+        :return: list
+        """
+
+        sql = """
+            SELECT * FROM locations WHERE user_id = %s
+        """
+        return self.execute(sql, (user_id,), fetchall=True)
+
+    def get_user_location(self, user_id: int, full_address: str) -> tuple:
+        """
+        Returns user selected location from database by full address
+        :param user_id: user's id
+        :param full_address: full address name of a location
+        :return: tuple
+        """
+
+        sql = """
+            SELECT coordinates from locations WHERE user_id = %s AND full_address = %s
+        """
+        return self.execute(sql, (user_id, full_address), fetchone=True).get('coordinates')
 
     def get_product_quantity(self, product_id: int, user_id: int) -> int:
         """

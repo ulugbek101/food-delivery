@@ -10,6 +10,8 @@ from keyboards.reply.settings_menu import generate_settings_menu
 from keyboards.inline.subcategories_menu import generate_subcategories_menu
 from keyboards.inline.categories_menu import generate_categories_menu
 from keyboards.inline.root_menu import generate_root_menu
+from handlers.users.cart_actions.cart_overall import show_cart
+from handlers.users.buy import start_shipping
 
 
 @router.message(F.text.in_(back_button_text.values()))
@@ -38,6 +40,9 @@ async def back(message: types.Message, state: FSMContext):
             reply_markup=generate_root_menu(lang)
         )
         db.update_last_step(message.from_user.id, "main_menu")
+
+    elif last_visited_place == "cart_overall":
+        await show_cart(message)
 
 
 @router.callback_query(lambda call: "back" in call.data)

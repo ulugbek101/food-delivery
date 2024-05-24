@@ -59,6 +59,12 @@ contact_button = {
     "en": "📞 Send my number",
 }
 
+location_button = {
+    "uz": "📍 Hozirgi joylashuvimni yuborish",
+    "ru": "📍 Отправить мое местоположение",
+    "en": "📍 Send my location",
+}
+
 phone_number_invalid = {
     "uz": "Telefon raqami noto'g'ri, iltimos, yuqorida ko'rsatilgan shaklda yuboring, yoki "
           "\"📞 Telefon raqamimni yuborish\" tugmasini bosing",
@@ -78,6 +84,12 @@ request_fullname = {
     "uz": "Ism va Familiyangizni kiriting",
     "ru": "Введите ваше Имя и Фамилию",
     "en": "Provide your First name and Last name",
+}
+
+request_location = {
+    "uz": "Iltimos, joylashuvingizni yuboring",
+    "ru": "Пожалуйста, отправьте свой адрес",
+    "en": "Please, send your location",
 }
 
 fullname_successfull_update = {
@@ -119,7 +131,7 @@ add_to_cart = {
 cart_product_added_cart_text = {
     "uz": "✅ Maxsulot savatchaga qo'shildi",
     "ru": "✅ Продукт добавлен в корзину",
-    "en": "✅ Product has been added to card",
+    "en": "✅ Product has been added to cart",
 }
 
 cart_product_updated_text = {
@@ -144,4 +156,82 @@ cart_overall_ready = {
     "uz": "✅ Davom etish",
     "ru": "✅ Продолжить",
     "en": "✅ Continue",
+}
+
+new_location_saved = {
+    "uz": "✅ Joylashuv saqlandi",
+    "ru": "✅ Местоположение сохранено",
+    "en": "✅ Geolocation has been saved",
+}
+
+request_full_address = {
+    "uz": "Joylashuvga nom bering\n\nRayon nomi, ko'cha nomi, podyezd, kvartira raqami, ...",
+    "ru": "Дайте название локации\n\nНазвание района, название улицы, подъезд, номер квартиры, ...",
+    "en": "Provide some more detail about this location\n\nRegion name, street name, entrance, house number ...",
+}
+
+request_deliver_type = {
+    "uz": "Yetkazib berish uslubini tanlang",
+    "ru": "Выберите способ доставки",
+    "en": "Select shipping type",
+}
+
+location_not_found = {
+    "uz": "Joylashuv topilmadi, iltimos, mavjudlari orasidan tanlang yoki yangi manzil yuboring",
+    "ru": "Адрес не найден, пожалуцста выберите из существующих или отправьте новое местоположение",
+    "en": "Location not found, please select from the list or send a new location",
+}
+
+shipping_option_buttons = {
+    "uz": ["📦 Olib ketish", "🚚 Yetkazib berish"],
+    "ru": ["📦 Заберу сам", "🚚 Доставка"],
+    "en": ["📦 Take away", "🚚 Delivery"],
+}
+
+order_saved = {
+    "uz": "Buyurtmangiz qabul qilindi, tez orada sizga buyurtma statusi haqida xabar yuboramiz 🫡",
+    "ru": "Ваш заказ принят и вскоре мыы сообщим вам о ее состоянии 🫡",
+    "en": "Your order has been placed and we will inform you about order status soon 🫡",
+}
+
+invalid_full_address = {
+    "uz": "Manzil noto'g'ri kiritildi, iltimos tekshirib qaytadan yuboring",
+    "ru": "Адрес введен неправильно, пожалуйста проверьте и отправьте заново",
+    "en": "Address line filled incorrectly, please check and re-send again",
+}
+
+invalid_shipping_option = {
+    "uz": "Iltimmos, yetkazib berish turini tanlang",
+    "ru": "Пожалуйста, выберите способ доставки",
+    "en": "Please, select shipping option",
+}
+
+distance_for_branch = {
+    "uz": "👇 Filialimizgacha bo'lgan masofa {} kilometr",
+    "ru": "👇 Дистанция до нашего филиала {} километров",
+    "en": "👇 {} kilometers to our branch",
+}
+
+final_confirmation = {
+    "uz": "Davom etishni istaysizmi ?",
+    "ru": "Продолжить",
+    "en": "Proceed ?",
+}
+
+confirm = {
+    "uz": "✅ Ha",
+    "ru": "✅ Да",
+    "en": "✅ Yes",
+}
+
+decline = {
+    "uz": "❌ Bekor qilish",
+    "ru": "❌ Отменить",
+    "en": "❌ Cancel",
+}
+
+cancelled = {
+    "uz": "❎ Bekor qilindi, lekin korzinkangiz ichidagi maxsulotlar hali ham turibdi, istalgan payt kelib davom etishingiz mumkin",
+    "ru": "❎ Отменено, но все выбранные продукты остались в корзине. Вы можете продолжить в люьой момент",
+    "en": "❎ Cancelled, but all products in your cart are still there so you can continue at any time",
 }
