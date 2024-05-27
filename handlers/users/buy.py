@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from geopy.distance import geodesic
 
 from aiogram.filters.command import Command
@@ -11,12 +13,15 @@ from localization.i18n import (cart_overall_ready, request_phone_number, phone_n
                                phone_number_valid, request_location, back_button_text, new_location_saved,
                                location_not_found, request_full_address, request_deliver_type, invalid_full_address,
                                invalid_shipping_option, distance_for_branch, final_confirmation, confirm, decline,
-                               cancelled, order_saved, one_minute, clear_locations, locations_cleared)
+                               cancelled, order_saved, one_minute, clear_locations, locations_cleared,
+                               deliver_type_text, delivery_time_select, incorrect_deliver_time)
 from keyboards.reply.contacts import generate_request_contact_menu
 from keyboards.reply.locations import generate_send_location_menu, generate_locations_menu
 from keyboards.reply.select_deliver_type_menu import generate_select_deliver_type_menu
 from keyboards.reply.confirmation_menu import generate_confirmation_menu
 from keyboards.reply.main_menu import generate_main_menu
+from keyboards.reply.deliver_options_menu import generate_deliver_options_menu
+from keyboards.reply.deliver_time_menu import generate_deliver_time_menu
 from keyboards.inline.order_status_menu import generate_order_status_menu
 from validations.phone_number import validate_phone_number
 from handlers.users.back import show_cart
@@ -218,9 +223,12 @@ async def update_delivery_type(message: types.Message, state: FSMContext):
                                  reply_markup=generate_send_location_menu(lang))
 
     elif message.text.strip() in ["🚚 Yetkazib berish", "🚚 Доставка", "🚚 Delivery"]:
-        pass
+        await state.update_data(deliver_type="deliver")
+        await state.set_state(CartHolderDetails.deliver_option)
+        await message.answer(text=f"<b>{deliver_type_text.get(lang)}</b>", reply_markup=generate_deliver_options_menu(lang))
 
     elif message.text.strip() in ["📦 Olib ketish", "📦 Заберу сам", "📦 Take away"]:
+        await state.update_data(deliver_type="take away")
         users_state = await state.get_data()
 
         if users_state.get('location'):
@@ -238,6 +246,65 @@ async def update_delivery_type(message: types.Message, state: FSMContext):
 
     else:
         await message.answer(text=f"<b>{invalid_shipping_option.get(lang)}</b>")
+
+
+@router.message(CartHolderDetails.deliver_option)
+async def update_deliver_option(message: types.Message, state: FSMContext):
+    lang = db.get_user_language(message.from_user.id)
+
+    if message.text and message.text.strip() in back_button_text.values():
+        await state.set_state(CartHolderDetails.deliver_type)
+        await message.answer(text=f"<b>{request_deliver_type.get(lang)}</b>",
+                             reply_markup=generate_select_deliver_type_menu(lang))
+
+    elif message.text in ["🚕 Zudlik bilan yetkazish", "🚕 Срочная доставка", "🚕 Instant delivery"]:
+        await state.update_data(deliver_option="instant")
+        await state.set_state(CartHolderDetails.final_confirmation)
+        await message.answer(text=f"<b>{final_confirmation.get(lang)}</b>",
+                             reply_markup=generate_confirmation_menu(lang))
+        await state.set_state(CartHolderDetails.final_confirmation)
+
+    elif message.text in ["🚚 Standart yetkizish", "🚚 Стандартная доставка", "🚚 Standart delivery"]:
+        await state.update_data(deliver_option="standart")
+        await state.set_state(CartHolderDetails.deliver_time)
+        await message.answer(text=f"<b>{delivery_time_select.get(lang)}</b>",
+                             reply_markup=generate_deliver_time_menu(lang))
+
+    else:
+        await message.answer(text=f"<b>{deliver_type_text.get(lang)}</b>")
+
+
+@router.message(CartHolderDetails.deliver_time)
+async def update_deliver_time(message: types.Message, state: FSMContext):
+    lang = db.get_user_language(message.from_user.id)
+
+    if message.text and message.text.strip() in back_button_text.values():
+        await state.set_state(CartHolderDetails.deliver_type)
+        await message.answer(text=f"<b>{deliver_type_text.get(lang)}</b>",
+                             reply_markup=generate_deliver_options_menu(lang))
+
+    elif message.text:
+        time = message.text[:2]
+        now = datetime.now().time().hour
+
+        if message.text.replace(":", "").isdigit():
+            time = int(time)
+
+            if time in [now + 3, now + 4, now + 5]:
+                await state.update_data(deliver_time=message.text)
+                await state.set_state(CartHolderDetails.final_confirmation)
+                await message.answer(text=f"<b>{final_confirmation.get(lang)}</b>",
+                                     reply_markup=generate_confirmation_menu(lang))
+                await state.set_state(CartHolderDetails.final_confirmation)
+
+            else:
+                await message.answer(text=f"<b>{incorrect_deliver_time.get(lang)}</b>")
+
+        else:
+            await message.answer(text=f"<b>{incorrect_deliver_time.get(lang)}</b>")
+
+    else:
+        await message.answer(text=f"<b>{delivery_time_select.get(lang)}</b>")
 
 
 @router.message(CartHolderDetails.final_confirmation)

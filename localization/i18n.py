@@ -188,10 +188,43 @@ request_full_address = {
     "en": "Provide some more detail about this location\n\nRegion name, street name, entrance, house number ...",
 }
 
+deliver_type_text = {
+    "uz": "Yetkazib berish uslubini tanlang:\n\n"
+          "1. 🚕 Zudlik bilan yetkazish - Buyurtmangiz tayor bo'lishi bilan, faqat sizni buyurtmangizni o'zini yetkazib"
+          "beramiz, narxi qimmatroq\n"
+          "2. 🚚 Standart yetkizish - Qo'shimcha boshqa buyurtmalar bilan birgalikda yetkazib beriladi, narxi arzonroq",
+    "ru": "Выберите тип доставки:\n\n"
+          "1. 🚕 Срочная доставка - Доставим только ваш заказ, как только будет готов"
+          ", будет дороже\n"
+          "2. 🚚 Стандартная доставка - Доставим вместе с остальными заказами, будет дешевле",
+    "en": "Select delivery option:\n\n"
+          "1. 🚕 Instant delivery - We'll deliver your order only, as soon as possible"
+          ", high cost\n"
+          "2. 🚚 Standart delivery - Delivered with other orders, low cost",
+}
+
 request_deliver_type = {
     "uz": "Yetkazib berish uslubini tanlang",
     "ru": "Выберите способ доставки",
     "en": "Select shipping type",
+}
+
+deliver_options = {
+    "uz": ["🚕 Zudlik bilan yetkazish", "🚚 Standart yetkizish"],
+    "ru": ["🚕 Срочная доставка", "🚚 Стандартная доставка"],
+    "en": ["🚕 Instant delivery", "🚚 Standart delivery"],
+}
+
+delivery_time_select = {
+    "uz": "🕑 Yetkaizb berish vaqtini tanlang, buyurtma shu vaqtgacha yetkazib beriladi",
+    "ru": "🕑 Выберите время доставки, блюдо будет доставлено к этому времени",
+    "en": "🕑 Select delivery time, order will be delivered by this time",
+}
+
+incorrect_deliver_time = {
+    "uz": "🕑 Yetkaizb berish vaqti noto'g'ri kiritildi, iltimos, quyidagi menyudan tanlang",
+    "ru": "🕑 Неверное время доставки, пожалуйста выберите один из меню",
+    "en": "🕑 Incorrect delivery time, please select one from menu",
 }
 
 location_not_found = {
