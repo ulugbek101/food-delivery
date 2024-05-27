@@ -3,7 +3,7 @@ from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 from keyboards.reply.back_button import generate_back_button
 from keyboards.reply.location_button import request_location_button
-from localization.i18n import back_button_text
+from localization.i18n import back_button_text, clear_locations
 
 
 def generate_send_location_menu(lang: str) -> ReplyKeyboardMarkup:
@@ -33,6 +33,7 @@ def generate_locations_menu(lang: str, locations_list: list) -> ReplyKeyboardMar
     markup.add(request_location_button(lang))
     for location in locations_list:
         markup.button(text=location.get("full_address"))
+    markup.button(text=f"{clear_locations.get(lang)}")
     markup.adjust(1)
 
     return markup.as_markup(resize_keyboard=True)

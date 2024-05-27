@@ -18,4 +18,4 @@ def generate_main_menu(lang: str) -> ReplyKeyboardMarkup:
         markup.button(text=menu_button_text)
 
     markup.adjust(2)
-    return markup.as_markup(resize_keyboard=True, one_time_keyboard=True)
+    return markup.as_markup(resize_keyboard=True)

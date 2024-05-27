@@ -1,5 +1,3 @@
-import struct
-
 from geopy.distance import geodesic
 
 from aiogram.filters.command import Command
@@ -13,11 +11,13 @@ from localization.i18n import (cart_overall_ready, request_phone_number, phone_n
                                phone_number_valid, request_location, back_button_text, new_location_saved,
                                location_not_found, request_full_address, request_deliver_type, invalid_full_address,
                                invalid_shipping_option, distance_for_branch, final_confirmation, confirm, decline,
-                               cancelled)
+                               cancelled, order_saved, one_minute, clear_locations, locations_cleared)
 from keyboards.reply.contacts import generate_request_contact_menu
 from keyboards.reply.locations import generate_send_location_menu, generate_locations_menu
 from keyboards.reply.select_deliver_type_menu import generate_select_deliver_type_menu
 from keyboards.reply.confirmation_menu import generate_confirmation_menu
+from keyboards.reply.main_menu import generate_main_menu
+from keyboards.inline.order_status_menu import generate_order_status_menu
 from validations.phone_number import validate_phone_number
 from handlers.users.back import show_cart
 from loader import branches_locations
@@ -73,7 +73,16 @@ async def start_shipping(message: types.Message, state: FSMContext):
     else:
         await state.update_data(phone_number=user.get('phone_number'))
         await state.set_state(CartHolderDetails.location)
-        await update_location()
+
+        user_locations = db.get_user_locations(user.get("id"))
+
+        if user_locations:
+            await message.answer(text=f"<b>{phone_number_valid.get(lang)}</b>")
+            await message.answer(text=f"<b>{request_location.get(lang)}</b>",
+                                 reply_markup=generate_locations_menu(lang, locations_list=user_locations))
+        else:
+            await message.answer(text=f"<b>{request_location.get(lang)}</b>",
+                                 reply_markup=generate_send_location_menu(lang))
 
     db.update_last_step(message.from_user.id, "cart_overall")
 
@@ -115,15 +124,21 @@ async def update_phone_number(message: types.Message, state: FSMContext):
 @router.message(CartHolderDetails.location)
 async def update_location(message: types.Message, state: FSMContext):
     lang = db.get_user_language(message.from_user.id)
+    user = db.get_user(message.from_user.id)
 
     if message.text and message.text.strip() in back_button_text.values():
         await state.set_state(CartHolderDetails.phone_number)
         await message.answer(text=f"<b>{request_phone_number.get(lang)}</b>",
                              reply_markup=generate_request_contact_menu(lang))
 
+    elif message.text and message.text.strip() in clear_locations.values():
+        db.clear_locations_list(user.get("id"))
+        locations_list = db.get_user_locations(message.from_user.id)
+        markup = generate_locations_menu(lang, locations_list)
+        markup.keyboard.pop(-1)
+        await message.answer(text=f"{locations_cleared.get(lang)}", reply_markup=markup)
+
     else:
-        lang = db.get_user_language(message.from_user.id)
-        user = db.get_user(message.from_user.id)
         user_locations = db.get_user_locations(user.get('id'))
 
         if message.text and message.text.strip() in [user_location.get('full_address') for user_location in
@@ -140,7 +155,8 @@ async def update_location(message: types.Message, state: FSMContext):
 
             # TODO: isolate to a separate file
             markup = types.ReplyKeyboardMarkup(
-                keyboard=[[types.KeyboardButton(text=f"{back_button_text.get(lang)}")]]
+                keyboard=[[types.KeyboardButton(text=f"{back_button_text.get(lang)}")]],
+                resize_keyboard=True,
             )
 
             await state.update_data(location=(latitude, longitude))
@@ -170,11 +186,16 @@ async def update_full_address(message: types.Message, state: FSMContext):
                                  reply_markup=generate_send_location_menu(lang))
 
     elif message.text:
+        user = db.get_user(message.from_user.id)
+        fsm_state = await state.get_data()
+        coordinates = fsm_state.get("location")
+        coordinates = f"{coordinates[0]},{coordinates[1]}"
 
         await state.update_data(full_address=full_address)
         await state.set_state(CartHolderDetails.deliver_type)
         await message.answer(text=f"<b>{request_deliver_type.get(lang)}</b>",
                              reply_markup=generate_select_deliver_type_menu(lang))
+        db.add_to_locations(user.get("id"), coordinates, full_address)
 
     else:
         await message.answer(text=f"<b>{invalid_full_address.get(lang)}</b>")
@@ -229,14 +250,18 @@ async def update_final_confirmation(message: types.Message, state: FSMContext):
                              reply_markup=generate_select_deliver_type_menu(lang))
 
     elif message.text and message.text in confirm.values():
-        pass
+        await message.answer(text=f"<b>{one_minute.get(lang)}</b>", reply_markup=generate_main_menu(lang))
+        await message.answer(text=f"<b>{order_saved.get(lang)}</b>", reply_markup=generate_order_status_menu(lang))
+        await state.clear()
+        user = db.get_user(message.from_user.id)
+        users_cart_products = db.get_users_cart_products(user.get('id'))
+        db.add_to_orders(user.get("id"), users_cart_products)
+        db.update_users_order_count(user.get("id"))
+        db.clear_user_cart(user.get('id'))
 
     elif message.text and message.text in decline.values():
-        await message.answer(text=f"{cancelled.get(lang)}")
+        await message.answer(text=f"<b>{cancelled.get(lang)}</b>")
         await show_cart(message)
 
     else:
-        await message.answer(text=f"{final_confirmation.get(lang)}")
-
-
-
+        await message.answer(text=f"<b>{final_confirmation.get(lang)}</b>")

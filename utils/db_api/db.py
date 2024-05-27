@@ -1,4 +1,5 @@
 import pymysql
+from datetime import date, datetime
 
 
 class Database:
@@ -45,11 +46,19 @@ class Database:
         return data
 
     @staticmethod
-    def format_args(sql, parameters: dict):
+    def format_args(sql, parameters: dict) -> tuple:
         sql += " AND ".join([
             f'{item} = %s' for item in parameters
         ])
         return sql, tuple(parameters.values())
+
+    @staticmethod
+    def format_orders(sql, order_obj: dict, orders_list: list) -> tuple:
+        sql += ",".join([
+            f'({order_obj.get("id")}, {order.get("user_id")}, {order.get("product_id")}, {order.get("quantity")}, {order.get("total_price")}, "{order_obj.get("created_date")}", "{order_obj.get("created_time")}")'
+            for order in orders_list
+        ])
+        return sql, tuple(orders_list)
 
     def create_users_table(self) -> None:
         """
@@ -151,6 +160,71 @@ class Database:
         """
         self.execute(sql)
 
+    def create_orders_table(self) -> None:
+        """
+        Creates orders tables
+        :return: None
+        """
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS orders (
+                id INT PRIMARY KEY AUTO_INCREMENT,
+                order_id INT NOT NULL,
+                user_id INT NOT NULL,
+                product_id INT NOT NULL,
+                quantity INT NOT NULL,
+                total_price DECIMAL(12, 5),
+                created_date DATE,
+                created_time TIME
+            )
+        """
+        self.execute(sql)
+
+    def create_user_orders_table(self):
+        """
+        Creates user orders table, where order ids are stored
+        :return: None
+        """
+
+        sql = """
+        CREATE TABLE IF NOT EXISTS user_orders(
+            id INT PRIMARY KEY AUTO_INCREMENT,
+            user_id INT NOT NULL,
+            status VARCHAR(50) DEFAULT "not_accepted",
+            created_date DATE,
+            created_time TIME
+        )
+        """
+        self.execute(sql)
+
+    def add_to_user_orders(self, user_id: int, created_date: str, created_time: str) -> None:
+        """
+        Creates a new user order object
+        :param user_id: user's id
+        :param created_date: created date
+        :param created_time: created time
+        :return: None
+        """
+
+        sql = f"""
+            INSERT INTO user_orders (user_id, created_date, created_time) VALUES ({user_id}, "{created_date}", "{created_time}")
+        """
+        self.execute(sql, commit=True)
+
+    def add_to_orders(self, user_id: int, orders_list: list[dict]) -> None:
+        """
+        Adds and orders from user's cart to an orders table
+        :param orders_list: list of orders that hav to be added to orders table
+        :param user_id: user's id
+        :return: None
+        """
+
+        self.add_to_user_orders(user_id, date.today().strftime("%Y-%m-%d"), datetime.now().time().strftime("%H:%M:%S"))
+        order_obj = self.get_user_order(user_id)
+        sql = "INSERT INTO orders (order_id, user_id, product_id, quantity, total_price, created_date, created_time) VALUES "
+        sql, orders_list = self.format_orders(sql, order_obj, orders_list)
+        self.execute(sql, commit=True)
+
     def add_to_cart(self, user_id: int, product_id: int, quantity: int) -> None:
         """
         Adds product to user's cart
@@ -166,6 +240,21 @@ class Database:
         """
         self.execute(sql, (user_id, product_id, quantity), commit=True)
         self.update_cart_products_total_price(user_id, product_id, quantity)
+
+    def add_to_locations(self, user_id: int, coordinates: str, full_address: str) -> None:
+        """
+        Adds new location to user's locations list
+        :param user_id: user's id
+        :param coordinates: user's new location's coordinates
+        :param full_address: coordinates' alias name
+        :return: None
+        """
+
+        sql = """
+            INSERT INTO locations (user_id, coordinates, full_address) 
+            VALUES (%s, %s, %s)
+        """
+        self.execute(sql, (user_id, coordinates, full_address), commit=True)
 
     def update_cart_products_total_price(self, user_id: int, product_id: int, quantity: int) -> None:
         """
@@ -198,6 +287,19 @@ class Database:
         """
         self.execute(sql, (new_quantity, user_id, product_id), commit=True)
         self.update_cart_products_total_price(user_id, product_id, new_quantity)
+
+    def get_user_order(self, user_id: int) -> dict:
+        """
+        Returns user order object
+        :param user_id: user's id
+        :return: dict
+        """
+
+        sql = """
+            SELECT * FROM user_orders WHERE user_id = %s ORDER BY created_time DESC
+        """
+        order_obj = self.execute(sql, (user_id,), fetchall=True)[0]
+        return order_obj
 
     def get_user_locations(self, user_id: int):
         """
@@ -361,6 +463,18 @@ class Database:
         """
         return self.execute(sql, (product_id,), fetchone=True)
 
+    def get_users_order_count(self, user_id: int) -> int:
+        """
+        Returns user's order count from users table
+        :param user_id: user's id
+        :return: int
+        """
+
+        sql = """
+            SELECT order_count from users WHERE id = %s
+        """
+        return self.execute(sql, (user_id,), fetchone=True).get("order_count")
+
     def register_user(self, telegram_id: int, fullname: str, language_code: str) -> None:
         """
         Registers user in a system
@@ -426,3 +540,53 @@ class Database:
             UPDATE users SET fullname = %s WHERE telegram_id = %s
         """
         self.execute(sql, (fullname, telegram_id), commit=True)
+
+    def update_users_order_count(self, user_id: int):
+        """
+        Updates user's orders count
+        :param user_id: user's id
+        :return: None
+        """
+
+        order_count = self.get_users_order_count(user_id)
+        sql = """
+            UPDATE users SET order_count = %s WHERE id = %s
+        """
+        self.execute(sql, (order_count + 1, user_id), commit=True)
+
+    def clear_user_cart(self, user_id: int) -> None:
+        """
+        Clears all products from user's cart
+        :param user_id:
+        :return: None
+        """
+
+        sql = """
+            DELETE FROM cart WHERE user_id = %s
+        """
+        self.execute(sql, (user_id,), commit=True)
+
+    def clear_locations_list(self, user_id: int) -> None:
+        """
+        Clears user's locations list from locations table
+        :param user_id: user's id
+        :return: None
+        """
+
+        sql = """
+            DELETE FROM locations WHERE user_id = %s
+        """
+        self.execute(sql, (user_id,), commit=True)
+
+    def delete_from_cart(self, user_id: int, product_id: int) -> None:
+        """
+        Removes product from user's cart
+        :param user_id: user's is
+        :param product_id: product's id
+        :return: None
+        """
+
+        sql = """
+            DELETE FROM cart WHERE user_id = %s AND product_id = %s
+        """
+        self.execute(sql, (user_id, product_id), commit=True)

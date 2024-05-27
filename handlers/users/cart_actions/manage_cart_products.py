@@ -1,18 +1,35 @@
-from aiogram import F, types
+from aiogram import types
 
-from router import router
-from loader import db
-from localization.i18n import cart, total, cart_empty
-from utils.format_price import format_price_digits
 from keyboards.inline.cart_overall_menu import generate_cart_overall_menu
 from keyboards.reply.cart_overall_ready import generate_cart_overall_ready_menu
+from keyboards.reply.main_menu import generate_main_menu
+from loader import db
+from localization.i18n import total, cart_empty
+from router import router
+from utils.format_price import format_price_digits
 
 
-@router.message(F.text == "/cart")
-@router.message(F.text.in_({"🛒 Korzinkam", "🛒 Моя корзина", "🛒 My cart"}))
-async def show_cart(message: types.Message):
-    lang = db.get_user_language(message.from_user.id)
-    user = db.get_user(message.from_user.id)
+@router.callback_query(lambda call: "order" in call.data)
+async def manage_cart(call: types.CallbackQuery):
+    splitted_call = call.data.split(":")
+    action = splitted_call[1]
+    product_id = splitted_call[2]
+    quantity = int(splitted_call[3])
+    user_id = splitted_call[4]
+
+    lang = db.get_user_language(call.from_user.id)
+    user = db.get_user(call.from_user.id)
+
+    if action == "increment":
+        db.update_cart_product_quantity(user_id, product_id, quantity + 1)
+
+    if action == "decrement":
+        if quantity - 1 != 0:
+            db.update_cart_product_quantity(user_id, product_id, quantity - 1)
+
+    if action == "delete":
+        db.delete_from_cart(user_id, product_id)
+
     cart_products = db.get_users_cart_products(user.get('id'))
     cart_products_total_price = db.get_users_cart_total_price(user.get('id'))
 
@@ -23,12 +40,6 @@ async def show_cart(message: types.Message):
             "en": "name_en",
         }
 
-        text = f"<b>{cart.get(lang)}:</b>"
-        await message.answer(
-            text=text,
-            reply_markup=generate_cart_overall_ready_menu(lang),
-        )
-
         text = ""
         for index, cart_product in enumerate(cart_products, start=1):
             product = db.get_product(cart_product.get('product_id'))
@@ -36,12 +47,11 @@ async def show_cart(message: types.Message):
             text += f"      {cart_product.get('quantity')} x {format_price_digits(cart_product.get('total_price') / cart_product.get('quantity'))} = {format_price_digits(cart_product.get('total_price'))} uzs\n\n"
         text += f"<b>{total.get(lang)}: {format_price_digits(cart_products_total_price)} uzs</b>"
 
-        await message.answer(
+        await call.message.edit_text(
             text=text,
             reply_markup=generate_cart_overall_menu(cart_products, user.get('id'), lang)
         )
 
-        db.update_last_step(message.from_user.id, "cart")
-
     else:
-        await message.answer(text=f"{cart_empty.get(lang)}")
+        await call.message.answer(text=f"{cart_empty.get(lang)}", reply_markup=generate_main_menu(lang))
+        await call.message.delete()

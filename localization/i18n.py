@@ -65,6 +65,18 @@ location_button = {
     "en": "📍 Send my location",
 }
 
+clear_locations = {
+    "uz": "🗑️ Joylashuvlar ro'yxatini tozalash",
+    "ru": "🗑 Очистить список геолокаций",
+    "en": "🗑 Clear geolocations list",
+}
+
+locations_cleared = {
+    "uz": "✅ Joylashuvlar ro'yxatini tozalandi",
+    "ru": "✅ Список геолокаций очищен",
+    "en": "✅ Geolocations list cleared",
+}
+
 phone_number_invalid = {
     "uz": "Telefon raqami noto'g'ri, iltimos, yuqorida ko'rsatilgan shaklda yuboring, yoki "
           "\"📞 Telefon raqamimni yuborish\" tugmasini bosing",
@@ -146,6 +158,12 @@ cart = {
     "en": "🛒 Your cart",
 }
 
+cart_empty = {
+    "uz": "🤔 Korzinkangiz bo'sh",
+    "ru": "🤔 Ваша корзина пуста",
+    "en": "🤔 Your cart is empty",
+}
+
 total = {
     "uz": "Umumiy",
     "ru": "Итого",
@@ -214,7 +232,7 @@ distance_for_branch = {
 
 final_confirmation = {
     "uz": "Davom etishni istaysizmi ?",
-    "ru": "Продолжить",
+    "ru": "Продолжить ?",
     "en": "Proceed ?",
 }
 
@@ -232,6 +250,41 @@ decline = {
 
 cancelled = {
     "uz": "❎ Bekor qilindi, lekin korzinkangiz ichidagi maxsulotlar hali ham turibdi, istalgan payt kelib davom etishingiz mumkin",
-    "ru": "❎ Отменено, но все выбранные продукты остались в корзине. Вы можете продолжить в люьой момент",
+    "ru": "❎ Отменено, но все выбранные продукты остались в корзине. Вы можете продолжить в любой момент",
     "en": "❎ Cancelled, but all products in your cart are still there so you can continue at any time",
+}
+
+one_minute = {
+    "uz": "1 daqiqa ... 😊",
+    "ru": "1 секундочку ... 😊",
+    "en": "1 second please ... 😊",
+}
+
+check_status = {
+    "uz": "🔄 Buyurtma statusni tekshirish",
+    "ru": "🔄 Проверить статус заказа",
+    "en": "🔄 Check order status",
+}
+
+order_status = {
+    "not_accepted": {
+        "uz": "🕐 Qabul qilinishi kutilyapti",
+        "ru": "🕐 В ожидании принятия",
+        "en": "🕐 Waiting to be accepted",
+    },
+    "accepted": {
+        "uz": "🕐🧑‍🍳 Qabul qilindi va tayyorlanmoqda",
+        "ru": "🕐🧑‍🍳 Принят и готовится",
+        "en": "🕐🧑‍🍳 Accepted and cooking",
+    },
+    "pending": {
+        "uz": "🏠🚚 Yetkazib berish jarayonida",
+        "ru": "🏠🚚 В пути",
+        "en": "🏠🚚 On the way",
+    },
+    "completed": {
+        "uz": "✅🚚 Yerkazib berilgan",
+        "ru": "✅🚚 Досавлен",
+        "en": "✅🚚 Delivered",
+    },
 }
