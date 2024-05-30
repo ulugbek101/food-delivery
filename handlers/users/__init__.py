@@ -7,3 +7,4 @@ from . import order_actions
 from . import back_to_root_menu
 from . import cart_actions
 from . import buy
+from . import my_orders

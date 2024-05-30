@@ -17,7 +17,7 @@ async def start(message: types.Message, state: FSMContext):
     if not user:
         language_code = message.from_user.language_code
         fullname = message.from_user.full_name
-        db.register_user(message.from_user.id, message.from_user.full_name, language_code)
+        db.register_user(message.from_user.id, message.from_user.full_name, message.from_user.username, language_code)
     else:
         language_code = user.get("language_code")
         fullname = user.get("fullname")

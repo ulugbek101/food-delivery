@@ -20,8 +20,3 @@ db.create_cart_table()
 db.create_locations_table()
 db.create_user_orders_table()
 db.create_orders_table()
-
-# db.add_to_orders([
-#     {"user_id": 1, "product_id": 1, "quantity": 10, "total_price": 10000},
-#     {"user_id": 1, "product_id": 1, "quantity": 20, "total_price": 20000},
-# ])

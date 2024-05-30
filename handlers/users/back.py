@@ -44,6 +44,10 @@ async def back(message: types.Message, state: FSMContext):
     elif last_visited_place == "cart_overall":
         await show_cart(message)
 
+    elif last_visited_place == "my_orders":
+        await message.answer(text=f"<b>{main_menu_title.get(lang)}</b>",
+                             reply_markup=generate_main_menu(lang))
+
 
 @router.callback_query(lambda call: "back" in call.data)
 async def inline_back(call: types.CallbackQuery):

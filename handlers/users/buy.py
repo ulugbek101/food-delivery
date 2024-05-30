@@ -14,7 +14,7 @@ from localization.i18n import (cart_overall_ready, request_phone_number, phone_n
                                location_not_found, request_full_address, request_deliver_type, invalid_full_address,
                                invalid_shipping_option, distance_for_branch, final_confirmation, confirm, decline,
                                cancelled, order_saved, one_minute, clear_locations, locations_cleared,
-                               deliver_type_text, delivery_time_select, incorrect_deliver_time)
+                               deliver_type_text, delivery_time_select, incorrect_deliver_time, order_history_text)
 from keyboards.reply.contacts import generate_request_contact_menu
 from keyboards.reply.locations import generate_send_location_menu, generate_locations_menu
 from keyboards.reply.select_deliver_type_menu import generate_select_deliver_type_menu
@@ -23,6 +23,7 @@ from keyboards.reply.main_menu import generate_main_menu
 from keyboards.reply.deliver_options_menu import generate_deliver_options_menu
 from keyboards.reply.deliver_time_menu import generate_deliver_time_menu
 from keyboards.inline.order_status_menu import generate_order_status_menu
+from utils.format_price import format_price_digits
 from validations.phone_number import validate_phone_number
 from handlers.users.back import show_cart
 from loader import branches_locations
@@ -225,7 +226,8 @@ async def update_delivery_type(message: types.Message, state: FSMContext):
     elif message.text.strip() in ["🚚 Yetkazib berish", "🚚 Доставка", "🚚 Delivery"]:
         await state.update_data(deliver_type="deliver")
         await state.set_state(CartHolderDetails.deliver_option)
-        await message.answer(text=f"<b>{deliver_type_text.get(lang)}</b>", reply_markup=generate_deliver_options_menu(lang))
+        await message.answer(text=f"<b>{deliver_type_text.get(lang)}</b>",
+                             reply_markup=generate_deliver_options_menu(lang))
 
     elif message.text.strip() in ["📦 Olib ketish", "📦 Заберу сам", "📦 Take away"]:
         await state.update_data(deliver_type="take away")
@@ -317,13 +319,46 @@ async def update_final_confirmation(message: types.Message, state: FSMContext):
                              reply_markup=generate_select_deliver_type_menu(lang))
 
     elif message.text and message.text in confirm.values():
-        await message.answer(text=f"<b>{one_minute.get(lang)}</b>", reply_markup=generate_main_menu(lang))
-        await message.answer(text=f"<b>{order_saved.get(lang)}</b>", reply_markup=generate_order_status_menu(lang))
+        state_obj = await state.get_data()
         await state.clear()
+
+        await message.answer(text=f"<b>{one_minute.get(lang)}</b>", reply_markup=generate_main_menu(lang))
+
         user = db.get_user(message.from_user.id)
         users_cart_products = db.get_users_cart_products(user.get('id'))
-        db.add_to_orders(user.get("id"), users_cart_products)
+
+        # Add user's cart products to orders list and create a new order with delivery time and shipping option
+        db.add_to_orders(user.get("id"),
+                         users_cart_products,
+                         state_obj.get("deliver_type"),
+                         state_obj.get("deliver_time"))
+
+        # Get the latest order that was created
+        order = db.get_last_user_order(user.get("id"))
+
+        order_text = order_history_text.get(lang)
+        text = f"{order_text.get('title')}: №{order.get('id')} | {order.get('created_date')} | {order.get('created_time')}\n\n\n"
+        products = db.get_order_products(order.get('id'))
+
+        overall_price = 0
+        for index, product_object in enumerate(products, start=1):
+            product = db.get_product(product_object.get('product_id'))
+            quantity = product_object.get("quantity")
+            total_price = product_object.get("total_price")
+            overall_price += total_price
+
+            text += f"{index}) {product.get(f'name_{lang}')}, x{quantity} - {format_price_digits(int(total_price))} UZS\n\n"
+
+        text += f"\n{order_text.get('total')}: {format_price_digits(int(overall_price))} UZS"
+
+        await message.answer(text=f"<b>{text}</b>")
+        await message.answer(text=f"<b>{order_saved.get(lang)}</b>",
+                             reply_markup=generate_order_status_menu(lang, order.get("id")))
+
+        # Update user's orders count in users table
         db.update_users_order_count(user.get("id"))
+
+        # Clear user's cart products
         db.clear_user_cart(user.get('id'))
 
     elif message.text and message.text in decline.values():

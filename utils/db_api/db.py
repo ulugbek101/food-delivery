@@ -73,6 +73,7 @@ class Database:
                 fullname VARCHAR(200),
                 phone_number VARCHAR(13),
                 telegram_id VARCHAR(200) NOT NULL UNIQUE,
+                username VARCHAR(200),
                 language_code VARCHAR(2) NOT NULL DEFAULT 'uz',
                 status VARCHAR(200) NOT NULL DEFAULT 'bronze',
                 order_count INT DEFAULT 0,
@@ -190,6 +191,8 @@ class Database:
         CREATE TABLE IF NOT EXISTS user_orders(
             id INT PRIMARY KEY AUTO_INCREMENT,
             user_id INT NOT NULL,
+            deliver_type VARCHAR(50) NOT NULL,
+            deliver_time VARCHAR(5),
             status VARCHAR(50) DEFAULT "not_accepted",
             created_date DATE,
             created_time TIME
@@ -197,30 +200,47 @@ class Database:
         """
         self.execute(sql)
 
-    def add_to_user_orders(self, user_id: int, created_date: str, created_time: str) -> None:
+    def add_to_user_orders(self, user_id: int, created_date: str, created_time: str, deliver_type: str,
+                           deliver_time: str) -> None:
         """
         Creates a new user order object
         :param user_id: user's id
         :param created_date: created date
         :param created_time: created time
+        :param deliver_time: delivery time user selected
+        :param deliver_type: shipping option user selected
         :return: None
         """
 
-        sql = f"""
-            INSERT INTO user_orders (user_id, created_date, created_time) VALUES ({user_id}, "{created_date}", "{created_time}")
-        """
+        if deliver_time:
+            sql = f"""
+                INSERT INTO user_orders (user_id, deliver_type, deliver_time, created_date, created_time) 
+                VALUES ({user_id}, "{deliver_type}", "{deliver_time}", "{created_date}", "{created_time}")
+            """
+        else:
+            sql = f"""
+                INSERT INTO user_orders (user_id, deliver_type, created_date, created_time) 
+                VALUES ({user_id}, "{deliver_type}", "{created_date}", "{created_time}")
+            """
+
         self.execute(sql, commit=True)
 
-    def add_to_orders(self, user_id: int, orders_list: list[dict]) -> None:
+    def add_to_orders(self, user_id: int, orders_list: list[dict], deliver_type: str, deliver_time: str) -> None:
         """
         Adds and orders from user's cart to an orders table
         :param orders_list: list of orders that hav to be added to orders table
         :param user_id: user's id
+        :param deliver_time: delivery time user selected
+        :param deliver_type: shipping option user selected
         :return: None
         """
 
-        self.add_to_user_orders(user_id, date.today().strftime("%Y-%m-%d"), datetime.now().time().strftime("%H:%M:%S"))
-        order_obj = self.get_user_order(user_id)
+        self.add_to_user_orders(user_id,
+                                date.today().strftime("%Y-%m-%d"),
+                                datetime.now().time().strftime("%H:%M:%S"),
+                                deliver_type,
+                                deliver_time)
+        order_obj = self.get_last_user_order(user_id)
         sql = "INSERT INTO orders (order_id, user_id, product_id, quantity, total_price, created_date, created_time) VALUES "
         sql, orders_list = self.format_orders(sql, order_obj, orders_list)
         self.execute(sql, commit=True)
@@ -288,7 +308,27 @@ class Database:
         self.execute(sql, (new_quantity, user_id, product_id), commit=True)
         self.update_cart_products_total_price(user_id, product_id, new_quantity)
 
-    def get_user_order(self, user_id: int) -> dict:
+    def get_user_order(self, order_id: int) -> dict:
+        """
+        Returns user's order by id
+        :param order_id: order's id
+        :return: None
+        """
+
+        sql = "SELECT * FROM user_orders WHERE id = %s"
+        return self.execute(sql, (order_id,), fetchone=True)
+
+    def get_user_orders(self, user_id: int) -> list:
+        """
+        Returns all user orders
+        :param user_id:
+        :return: tuple
+        """
+
+        sql = "SELECT * FROM user_orders WHERE user_id = %s ORDER BY created_date DESC LIMIT 20"
+        return self.execute(sql, (user_id,), fetchall=True)
+
+    def get_last_user_order(self, user_id: int) -> dict:
         """
         Returns user order object
         :param user_id: user's id
@@ -300,6 +340,18 @@ class Database:
         """
         order_obj = self.execute(sql, (user_id,), fetchall=True)[0]
         return order_obj
+
+    def get_order_products(self, order_id: int) -> list:
+        """
+        Returns all products from orders table
+        :param order_id: order's id
+        :return: list
+        """
+
+        sql = """
+        SELECT * FROM orders WHERE order_id = %s
+        """
+        return self.execute(sql, (order_id,), fetchall=True)
 
     def get_user_locations(self, user_id: int):
         """
@@ -475,19 +527,20 @@ class Database:
         """
         return self.execute(sql, (user_id,), fetchone=True).get("order_count")
 
-    def register_user(self, telegram_id: int, fullname: str, language_code: str) -> None:
+    def register_user(self, telegram_id: int, fullname: str, username: str, language_code: str) -> None:
         """
         Registers user in a system
         :param telegram_id: user's telegram id
         :param fullname: user's fullname
+        :param username: user's username
         :param language_code: user's language code
         :return: None
         """
 
         sql = """
-            INSERT INTO users (telegram_id, fullname, language_code) VALUES (%s, %s, %s)
+            INSERT INTO users (telegram_id, fullname, username, language_code) VALUES (%s, %s, %s, %s)
         """
-        self.execute(sql, (telegram_id, fullname, language_code), commit=True)
+        self.execute(sql, (telegram_id, fullname, username, language_code), commit=True)
 
     def update_language_code(self, telegram_id: int, lang: str) -> None:
         """

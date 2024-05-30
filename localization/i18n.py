@@ -240,7 +240,7 @@ shipping_option_buttons = {
 }
 
 order_saved = {
-    "uz": "Buyurtmangiz qabul qilindi, tez orada sizga buyurtma statusi haqida xabar yuboramiz 🫡",
+    "uz": "Buyurtmangiz qabul qilindi, tez orada sizga buyurtma statusi haqida xaba§r yuboramiz 🫡",
     "ru": "Ваш заказ принят и вскоре мыы сообщим вам о ее состоянии 🫡",
     "en": "Your order has been placed and we will inform you about order status soon 🫡",
 }
@@ -320,4 +320,37 @@ order_status = {
         "ru": "✅🚚 Досавлен",
         "en": "✅🚚 Delivered",
     },
+}
+
+select_order_from_orders = {
+    "uz": "Iltimos, buyurtmani tanlang",
+    "ru": "Пожалуйста, выберите заказ",
+    "en": "Please, select an order",
+}
+
+order_not_found = {
+    "uz": "🤔 Buyurtma topilmadi",
+    "ru": "🤔 Заказ не найден",
+    "en": "🤔 Order not found",
+}
+
+order_history_text = {
+    "uz": {
+        "title": "Zakaz",
+        "total": "Umumiy qiymati",
+    },
+    "ru": {
+        "title": "Заказ от",
+        "total": "Сумма",
+    },
+    "en": {
+        "title": "Order from",
+        "total": "Total amount",
+    },
+}
+
+no_orders_history = {
+    "uz": "Hali hech narsa buyurtma qilmagansiz",
+    "ru": "Вы еще ничего не заказывали",
+    "en": "You haven't ordered anything yet",
 }
