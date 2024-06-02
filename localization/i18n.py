@@ -366,3 +366,21 @@ no_orders_history = {
     "ru": "Вы еще ничего не заказывали",
     "en": "You haven't ordered anything yet",
 }
+
+card_payments_not_being_served = {
+    "uz": "Uzr, lekin hozircha kartadan to'lov qabul qilingani yo'q",
+    "ru": "Извините, но пока что мы не принимает оплату через карту",
+    "en": "Card payments currently are not being served, sorry",
+}
+
+select_payment_method = {
+    "uz": "Iltimos, to'lov turini tanlang",
+    "ru": "Пожалуйста, выберите способ оплаты",
+    "en": "Please, select payment method",
+}
+
+payment_method_menu = {
+    "uz": ["💸 Naqd pul", "💳 Karta"],
+    "ru": ["💸 Наличные", "💳 Карта"],
+    "en": ["💸 Cash", "💳 Card"],
+}

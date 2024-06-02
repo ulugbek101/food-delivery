@@ -6,6 +6,7 @@ from aiogram.filters.command import Command
 from aiogram import types, F
 from aiogram.fsm.context import FSMContext
 
+from keyboards.reply.payment_method_menu import generate_payment_method_menu
 from router import router
 from loader import db
 from states.cart_holder_details import CartHolderDetails
@@ -15,7 +16,8 @@ from localization.i18n import (cart_overall_ready, request_phone_number, phone_n
                                invalid_shipping_option, distance_for_branch, final_confirmation, confirm, decline,
                                cancelled, order_saved, one_minute, clear_locations, locations_cleared,
                                deliver_type_text, delivery_time_select, incorrect_deliver_time, order_history_text,
-                               order_status)
+                               order_status, card_payments_not_being_served, select_payment_method, payment_method_menu,
+                               cart)
 from keyboards.reply.contacts import generate_request_contact_menu
 from keyboards.reply.locations import generate_send_location_menu, generate_locations_menu
 from keyboards.reply.select_deliver_type_menu import generate_select_deliver_type_menu
@@ -27,45 +29,28 @@ from keyboards.inline.order_status_menu import generate_order_status_menu
 from utils.format_price import format_price_digits
 from validations.phone_number import validate_phone_number
 from handlers.users.back import show_cart
-from loader import branches_locations
-
-PAYMENT_TOKEN = "398062629:TEST:999999999_F91D8F69C042267444B74CC0B3C747757EB0E065"
+from loader import branches_locations, PAYMENT_PROVIDER_TOKEN
 
 
-@router.message(Command(commands='buy', ignore_case=True))
-async def send_invoice(message: types.Message):
-    await message.answer_invoice(
-        title="Yoour invoice title",
-        description="This is your very very long description",
-        prices=[types.LabeledPrice(label="Product1", amount=1000000),
-                types.LabeledPrice(label="Product2", amount=2000000)],
-        need_shipping_address=True,
-        need_name=True,
-        need_email=True,
-        need_phone_number=True,
-        is_flexible=True,
-        currency="uzs",
-        payload="Some data",
-        protect_content=True,
-        start_parameter="indian-food_delivery",
-        suggested_tip_amounts=[500000, 1000000, 1500000],
-        max_tip_amount=1500000,
-        provider_token=PAYMENT_TOKEN
-    )
-
-
-@router.shipping_query()
-async def show_shipping_options(shipping_query: types.ShippingQuery):
-    await shipping_query.answer(ok=True,
-                                error_message="Some error happened",
-                                shipping_options=[
-                                    types.ShippingOption(id="express", title="As soon as fast", prices=[
-                                        types.LabeledPrice(label="Express shipping", amount=1500000)]),
-                                    types.ShippingOption(id="normal", title="Normal delivery", prices=[
-                                        types.LabeledPrice(label="Normal shipping", amount=500000),
-                                    ])
-                                ])
-
+# @router.message(Command(commands='buy', ignore_case=True))
+# async def send_invoice(message: types.Message):
+#     await message.answer_invoice(
+#         title="Yoour invoice title",
+#         description="This is your very very long description",
+#         prices=[types.LabeledPrice(label="Product1", amount=1000000),
+#                 types.LabeledPrice(label="Product2", amount=2000000)],
+#         need_shipping_address=True,
+#         need_name=True,
+#         need_email=True,
+#         need_phone_number=True,
+#         is_flexible=True,
+#         currency="uzs",
+#         payload="Some data",
+#         start_parameter="indian-food_delivery",
+#         suggested_tip_amounts=[500000, 1000000, 1500000],
+#         max_tip_amount=1500000,
+#         provider_token=PAYMENT_PROVIDER_TOKEN
+#     )
 
 @router.message(F.text.in_(cart_overall_ready.values()))
 async def start_shipping(message: types.Message, state: FSMContext):
@@ -320,14 +305,43 @@ async def update_final_confirmation(message: types.Message, state: FSMContext):
                              reply_markup=generate_select_deliver_type_menu(lang))
 
     elif message.text and message.text in confirm.values():
+        lang = db.get_user_language(message.from_user.id)
+
+        await message.answer(text=f"<b>{select_payment_method.get(lang)}</b>",
+                             reply_markup=generate_payment_method_menu(lang))
+        await state.set_state(CartHolderDetails.payment_method)
+
+    elif message.text and message.text in decline.values():
+        await message.answer(text=f"<b>{cancelled.get(lang)}</b>")
+        await show_cart(message)
+
+    else:
+        await message.answer(text=f"<b>{final_confirmation.get(lang)}</b>")
+
+
+@router.message(CartHolderDetails.payment_method)
+async def update_payment_method(message: types.Message, state: FSMContext):
+    lang = db.get_user_language(message.from_user.id)
+
+    if message.text and message.text.strip() in back_button_text.values():
+        await state.set_state(CartHolderDetails.final_confirmation)
+        await message.answer(text=f"<b>{final_confirmation.get(lang)}</b>",
+                             reply_markup=generate_confirmation_menu(lang))
+
+    elif message.text and message.text in payment_method_menu.get(lang):
         state_obj = await state.get_data()
-        await state.clear()
 
         await message.answer(text=f"<b>{one_minute.get(lang)}</b>", reply_markup=generate_main_menu(lang))
 
+        if message.text == payment_method_menu.get(lang)[0]:  # Cash
+            payment_method="cash"
+
+        elif message.text == payment_method_menu.get(lang)[1]:  # Card
+            payment_method="card"
+
         user = db.get_user(message.from_user.id)
         users_cart_products = db.get_users_cart_products(user.get('id'))
-        payment_method = state_obj.get("payment_method") if state_obj.get("payment_method") else "cash"
+
 
         # Add user's cart products to orders list and create a new order with delivery time and shipping option
         db.add_to_orders(user.get("id"),
@@ -360,9 +374,38 @@ async def update_final_confirmation(message: types.Message, state: FSMContext):
         text += f"\n🗓️ {date} | {order.get('created_time')}"
         text += f"\n\n{order_text.get('total')}: {format_price_digits(int(overall_price))} UZS"
 
-        await message.answer(text=f"<b>{text}</b>")
-        await message.answer(text=f"<b>{order_saved.get(lang)}</b>",
-                             reply_markup=generate_order_status_menu(lang, order.get("id")))
+        if payment_method == "card":
+            prices = [
+                types.LabeledPrice(label=f"x{product.get('quantity')} {db.get_product(product.get('product_id')).get(f'name_{lang}')}",
+                                   amount=int(product.get('total_price')) * 100)
+                for product in users_cart_products
+            ]
+
+            products_names = []
+            for product in users_cart_products:
+                product_name = db.get_product(product.get("product_id")).get(f"name_{lang}")
+                products_names.append(product_name)
+
+            description = ", ".join([product_name for product_name in products_names])
+
+            await message.answer_invoice(
+                title=f"{cart.get(lang)}",
+                description=description,
+                prices=prices,
+                need_shipping_address=True,
+                need_name=True,
+                need_phone_number=True,
+                is_flexible=True,
+                currency="UZS",
+                payload="Some data",
+                start_parameter="indian-food_delivery",
+                # suggested_tip_amounts=[100000, 200000, 500000, 700000, 1000000, 1500000],
+                # max_tip_amount=1500000,
+                provider_token=PAYMENT_PROVIDER_TOKEN)
+        else:
+            await message.answer(text=f"<b>{text}</b>")
+            await message.answer(text=f"<b>{order_saved.get(lang)}</b>",
+                                 reply_markup=generate_order_status_menu(lang, order.get("id")))
 
         # Update user's orders count in users table
         db.update_users_order_count(user.get("id"))
@@ -370,9 +413,27 @@ async def update_final_confirmation(message: types.Message, state: FSMContext):
         # Clear user's cart products
         db.clear_user_cart(user.get('id'))
 
-    elif message.text and message.text in decline.values():
-        await message.answer(text=f"<b>{cancelled.get(lang)}</b>")
-        await show_cart(message)
+        # Clear state
+        await state.clear()
 
     else:
-        await message.answer(text=f"<b>{final_confirmation.get(lang)}</b>")
+        await message.answer(text=f"<b>{select_payment_method.get(lang)}</b>")
+
+
+@router.shipping_query()
+async def show_shipping_options(shipping_query: types.ShippingQuery):
+    await shipping_query.answer(ok=True,
+                                error_message="Some error happened",
+                                shipping_options=[
+                                    types.ShippingOption(id="express", title="As soon as fast", prices=[
+                                        types.LabeledPrice(label="Express shipping", amount=1500000)]),
+                                    types.ShippingOption(id="normal", title="Normal delivery", prices=[
+                                        types.LabeledPrice(label="Normal shipping", amount=500000),
+                                    ])
+                                ])
+
+
+@router.pre_checkout_query(lambda query: True)
+async def checkout(pre_checkout_query: types.PreCheckoutQuery):
+    lang = db.get_user_language(pre_checkout_query.from_user.id)
+    await pre_checkout_query.answer(ok=False, error_message=f"{card_payments_not_being_served.get(lang)}")

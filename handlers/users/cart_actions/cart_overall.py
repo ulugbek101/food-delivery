@@ -44,4 +44,4 @@ async def show_cart(message: types.Message):
         db.update_last_step(message.from_user.id, "cart")
 
     else:
-        await message.answer(text=f"{cart_empty.get(lang)}")
+        await message.answer(text=f"<b>{cart_empty.get(lang)}</b>")
