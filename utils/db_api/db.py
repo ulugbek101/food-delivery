@@ -195,13 +195,14 @@ class Database:
             deliver_time VARCHAR(5),
             status VARCHAR(50) DEFAULT "not_accepted",
             created_date DATE,
-            created_time TIME
+            created_time TIME,
+            payment_method VARCHAR(20) NOT NULL
         )
         """
         self.execute(sql)
 
     def add_to_user_orders(self, user_id: int, created_date: str, created_time: str, deliver_type: str,
-                           deliver_time: str) -> None:
+                           deliver_time: str, payment_method: str) -> None:
         """
         Creates a new user order object
         :param user_id: user's id
@@ -209,29 +210,32 @@ class Database:
         :param created_time: created time
         :param deliver_time: delivery time user selected
         :param deliver_type: shipping option user selected
+        :param payment_method: payment type for order
         :return: None
         """
 
         if deliver_time:
             sql = f"""
-                INSERT INTO user_orders (user_id, deliver_type, deliver_time, created_date, created_time) 
-                VALUES ({user_id}, "{deliver_type}", "{deliver_time}", "{created_date}", "{created_time}")
+                INSERT INTO user_orders (user_id, deliver_type, deliver_time, created_date, created_time, payment_method) 
+                VALUES ({user_id}, "{deliver_type}", "{deliver_time}", "{created_date}", "{created_time}", "{payment_method}")
             """
         else:
             sql = f"""
-                INSERT INTO user_orders (user_id, deliver_type, created_date, created_time) 
-                VALUES ({user_id}, "{deliver_type}", "{created_date}", "{created_time}")
+                INSERT INTO user_orders (user_id, deliver_type, created_date, created_time, payment_method) 
+                VALUES ({user_id}, "{deliver_type}", "{created_date}", "{created_time}", "{payment_method}")
             """
 
         self.execute(sql, commit=True)
 
-    def add_to_orders(self, user_id: int, orders_list: list[dict], deliver_type: str, deliver_time: str) -> None:
+    def add_to_orders(self, user_id: int, orders_list: list[dict], deliver_type: str, deliver_time: str,
+                      payment_method: str) -> None:
         """
         Adds and orders from user's cart to an orders table
         :param orders_list: list of orders that hav to be added to orders table
         :param user_id: user's id
         :param deliver_time: delivery time user selected
         :param deliver_type: shipping option user selected
+        :param payment_method: payment type for order
         :return: None
         """
 
@@ -239,7 +243,8 @@ class Database:
                                 date.today().strftime("%Y-%m-%d"),
                                 datetime.now().time().strftime("%H:%M:%S"),
                                 deliver_type,
-                                deliver_time)
+                                deliver_time,
+                                payment_method)
         order_obj = self.get_last_user_order(user_id)
         sql = "INSERT INTO orders (order_id, user_id, product_id, quantity, total_price, created_date, created_time) VALUES "
         sql, orders_list = self.format_orders(sql, order_obj, orders_list)

@@ -14,7 +14,8 @@ from localization.i18n import (cart_overall_ready, request_phone_number, phone_n
                                location_not_found, request_full_address, request_deliver_type, invalid_full_address,
                                invalid_shipping_option, distance_for_branch, final_confirmation, confirm, decline,
                                cancelled, order_saved, one_minute, clear_locations, locations_cleared,
-                               deliver_type_text, delivery_time_select, incorrect_deliver_time, order_history_text)
+                               deliver_type_text, delivery_time_select, incorrect_deliver_time, order_history_text,
+                               order_status)
 from keyboards.reply.contacts import generate_request_contact_menu
 from keyboards.reply.locations import generate_send_location_menu, generate_locations_menu
 from keyboards.reply.select_deliver_type_menu import generate_select_deliver_type_menu
@@ -292,7 +293,7 @@ async def update_deliver_time(message: types.Message, state: FSMContext):
         if message.text.replace(":", "").isdigit():
             time = int(time)
 
-            if time in [now + 3, now + 4, now + 5]:
+            if time in [now + 3, now + 4, now + 5, now + 6]:
                 await state.update_data(deliver_time=message.text)
                 await state.set_state(CartHolderDetails.final_confirmation)
                 await message.answer(text=f"<b>{final_confirmation.get(lang)}</b>",
@@ -326,18 +327,20 @@ async def update_final_confirmation(message: types.Message, state: FSMContext):
 
         user = db.get_user(message.from_user.id)
         users_cart_products = db.get_users_cart_products(user.get('id'))
+        payment_method = state_obj.get("payment_method") if state_obj.get("payment_method") else "cash"
 
         # Add user's cart products to orders list and create a new order with delivery time and shipping option
         db.add_to_orders(user.get("id"),
                          users_cart_products,
                          state_obj.get("deliver_type"),
-                         state_obj.get("deliver_time"))
+                         state_obj.get("deliver_time"),
+                         payment_method)
 
         # Get the latest order that was created
         order = db.get_last_user_order(user.get("id"))
 
         order_text = order_history_text.get(lang)
-        text = f"{order_text.get('title')}: №{order.get('id')} | {order.get('created_date')} | {order.get('created_time')}\n\n\n"
+        text = f"{order_text.get('title')}: №{order.get('id')}\n\n\n"
         products = db.get_order_products(order.get('id'))
 
         overall_price = 0
@@ -345,11 +348,17 @@ async def update_final_confirmation(message: types.Message, state: FSMContext):
             product = db.get_product(product_object.get('product_id'))
             quantity = product_object.get("quantity")
             total_price = product_object.get("total_price")
+
             overall_price += total_price
 
             text += f"{index}) {product.get(f'name_{lang}')}, x{quantity} - {format_price_digits(int(total_price))} UZS\n\n"
 
-        text += f"\n{order_text.get('total')}: {format_price_digits(int(overall_price))} UZS"
+        date = order.get("created_date")
+        status = order.get("status")
+        text += f"\n{'💸' if order.get('payment_method') == 'cash' else '💳'} {order_text.get('payment_method').get(order.get('payment_method'))}"
+        text += f"\n🏁 {order_status.get(status).get(lang)}"
+        text += f"\n🗓️ {date} | {order.get('created_time')}"
+        text += f"\n\n{order_text.get('total')}: {format_price_digits(int(overall_price))} UZS"
 
         await message.answer(text=f"<b>{text}</b>")
         await message.answer(text=f"<b>{order_saved.get(lang)}</b>",

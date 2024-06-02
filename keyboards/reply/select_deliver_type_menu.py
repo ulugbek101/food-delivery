@@ -14,9 +14,9 @@ def generate_select_deliver_type_menu(lang: str) -> ReplyKeyboardMarkup:
 
     markup = ReplyKeyboardBuilder()
 
-    markup.row(generate_back_button(lang))
     for shipping_option in shipping_option_buttons.get(lang):
         markup.button(text=shipping_option)
-    markup.adjust(1)
+    markup.adjust(2)
+    markup.row(generate_back_button(lang))
 
     return markup.as_markup(resize_keyboard=True)

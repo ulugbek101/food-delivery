@@ -241,7 +241,7 @@ shipping_option_buttons = {
 
 order_saved = {
     "uz": "Buyurtmangiz qabul qilindi, tez orada sizga buyurtma statusi haqida xaba§r yuboramiz 🫡",
-    "ru": "Ваш заказ принят и вскоре мыы сообщим вам о ее состоянии 🫡",
+    "ru": "Ваш заказ принят и вскоре мы сообщим вам о ее состоянии 🫡",
     "en": "Your order has been placed and we will inform you about order status soon 🫡",
 }
 
@@ -336,16 +336,28 @@ order_not_found = {
 
 order_history_text = {
     "uz": {
-        "title": "Zakaz",
+        "title": "Buyurtma",
         "total": "Umumiy qiymati",
+        "payment_method": {
+            "card": "Plastik karta",
+            "cash": "Naqd pul",
+        }
     },
     "ru": {
-        "title": "Заказ от",
+        "title": "Заказ",
         "total": "Сумма",
+        "payment_method": {
+            "card": "Пластиковая карта",
+            "cash": "Наличные",
+        }
     },
     "en": {
-        "title": "Order from",
+        "title": "Order",
         "total": "Total amount",
+        "payment_method": {
+            "card": "Credit card",
+            "cash": "Cash",
+        }
     },
 }
 

@@ -49,7 +49,7 @@ async def show_order(message: types.Message, state: FSMContext):
             if order:
                 products = db.get_order_products(order.get("id"))
                 order_text = order_history_text.get(lang)
-                response_text = f"{order_text.get('title')}: №{order.get('id')} | {order.get('created_date')} | {order.get('created_time')}\n\n\n"
+                response_text = f"{order_text.get('title')}: №{order.get('id')}\n\n\n"
 
                 overall_price = 0
                 for index, product_object in enumerate(products, start=1):
@@ -62,8 +62,9 @@ async def show_order(message: types.Message, state: FSMContext):
 
                 date = order.get("created_date")
                 status = order.get("status")
-                response_text += f"\n🗓️ {date}"
+                response_text += f"\n{'💸' if order.get('payment_method') == 'cash' else '💳'} {order_text.get('payment_method').get(order.get('payment_method'))}"
                 response_text += f"\n🏁 {order_status.get(status).get(lang)}"
+                response_text += f"\n🗓️ {date} | {order.get('created_time')}"
                 response_text += f"\n\n{order_text.get('total')}: {format_price_digits(int(overall_price))} UZS"
 
                 await message.answer(text=f"<b>{response_text}</b>",
