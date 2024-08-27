@@ -532,20 +532,22 @@ class Database:
         """
         return self.execute(sql, (user_id,), fetchone=True).get("order_count")
 
-    def register_user(self, telegram_id: int, fullname: str, username: str, language_code: str) -> None:
+    def register_user(self, telegram_id: int, fullname: str, username: str, language_code: str, status: str = "bronze", order_count: int = 0) -> None:
         """
         Registers user in a system
         :param telegram_id: user's telegram id
         :param fullname: user's fullname
         :param username: user's username
         :param language_code: user's language code
+        :param status: user's status, initially 'bronze'
+        :params order_count: user's total order count, initially 0
         :return: None
         """
 
         sql = """
-            INSERT INTO users (telegram_id, fullname, username, language_code) VALUES (%s, %s, %s, %s)
+            INSERT INTO users (telegram_id, fullname, username, language_code, status, order_count) VALUES (%s, %s, %s, %s, %s, %s)
         """
-        self.execute(sql, (telegram_id, fullname, username, language_code), commit=True)
+        self.execute(sql, (telegram_id, fullname, username, language_code, status, order_count), commit=True)
 
     def update_language_code(self, telegram_id: int, lang: str) -> None:
         """
